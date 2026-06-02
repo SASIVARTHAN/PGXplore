@@ -95,7 +95,7 @@
 
 /* Hero: light = pale surface + dark type; dark = teal gradient + white type */
 .hero-section {
-  @apply relative overflow-hidden rounded-3xl border border-brand-200/70 px-6 py-14 md:px-12;
+  @apply relative overflow-visible rounded-3xl border border-brand-200/70 px-6 py-14 md:px-12;
   @apply bg-gradient-to-br from-brand-50 via-white to-violet-50;
   @apply text-neutral-950;
   background-image:
@@ -133,6 +133,123 @@
 
 .dark .hero-subtitle {
   @apply text-brand-100;
+}
+
+.hero-section__grid {
+  @apply grid items-center gap-8 lg:grid-cols-2 lg:gap-10;
+}
+
+.hero-section__main {
+  @apply min-w-0;
+}
+
+.hero-feature-rotator {
+  @apply mt-2 flex w-full flex-col gap-4 lg:mt-0 lg:max-w-md lg:justify-self-end xl:max-w-lg;
+}
+
+.hero-feature-rotator__heading {
+  @apply text-xs font-semibold uppercase tracking-widest text-brand-800;
+}
+
+.dark .hero-feature-rotator__heading {
+  @apply text-brand-200;
+}
+
+.hero-feature-rotator__stage {
+  @apply min-h-[4.75rem] transition-opacity duration-300;
+}
+
+.hero-feature-rotator__list {
+  @apply flex flex-col gap-2;
+}
+
+.hero-feature-rotator__list-item {
+  @apply flex items-center gap-2 rounded-lg border border-transparent px-2 py-2 text-sm transition;
+  @apply text-neutral-500 opacity-60;
+}
+
+.hero-feature-rotator__list-num {
+  @apply w-4 shrink-0 text-xs font-semibold tabular-nums text-neutral-400;
+}
+
+.dark .hero-feature-rotator__list-num {
+  @apply text-brand-100/40;
+}
+
+.dark .hero-feature-rotator__list-item {
+  @apply text-brand-100/60;
+}
+
+.hero-feature-rotator__list-item--active {
+  @apply border-white/40 bg-white/50 text-neutral-900 opacity-100;
+}
+
+.dark .hero-feature-rotator__list-item--active {
+  @apply border-white/20 bg-white/10 text-white opacity-100;
+}
+
+.hero-feature-rotator__list-item--active .hero-feature-rotator__list-num {
+  @apply text-brand-700;
+}
+
+.dark .hero-feature-rotator__list-item--active .hero-feature-rotator__list-num {
+  @apply text-brand-200;
+}
+
+.hero-feature-rotator__list-icon {
+  @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-100/80 text-sm;
+}
+
+.dark .hero-feature-rotator__list-icon {
+  @apply bg-white/10;
+}
+
+.hero-feature-rotator__list-item--active .hero-feature-rotator__list-icon {
+  @apply bg-brand-200;
+}
+
+.dark .hero-feature-rotator__list-item--active .hero-feature-rotator__list-icon {
+  @apply bg-white/20;
+}
+
+.hero-feature-rotator__list-text {
+  @apply font-medium leading-snug;
+}
+
+.hero-feature-pill {
+  @apply flex items-center gap-2.5 rounded-xl border border-white/50 bg-white/60 px-3 py-3 backdrop-blur-sm;
+}
+
+.hero-feature-pill--featured {
+  @apply gap-3 px-4 py-4;
+}
+
+.dark .hero-feature-pill {
+  @apply border-white/15 bg-white/10;
+}
+
+.hero-feature-pill__icon {
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-base;
+}
+
+.hero-feature-pill__icon--lg {
+  @apply h-11 w-11 text-lg;
+}
+
+.dark .hero-feature-pill__icon {
+  @apply bg-white/15;
+}
+
+.hero-feature-pill__label {
+  @apply min-w-0 text-xs font-semibold leading-snug text-neutral-900 sm:text-sm;
+}
+
+.hero-feature-pill__label--lg {
+  @apply text-sm sm:text-base;
+}
+
+.dark .hero-feature-pill__label {
+  @apply text-white;
 }
 
 .hero-cta-outline {
@@ -185,3 +302,5 @@
     background: linear-gradient(to top, rgb(2 6 23) 85%, transparent);
   }
 }
+
+@import "./admin.css";

@@ -7,7 +7,7 @@ import PGCard from '../components/PGCard'
 import AutocompleteSearchBar from '../components/AutocompleteSearchBar'
 import { useToast } from '../components/Toast'
 import SkeletonCard from '../components/SkeletonCard'
-import { pgListings } from '../data/pgData'
+import { useListings } from '../contexts/AdminContext'
 import { hasActiveListingFilters } from '../utils/navigation'
 import { filterListingsBySearch } from '../utils/pgSearch'
 import { getStartingRent, getVacancySummary } from '../utils/vacancy'
@@ -23,6 +23,7 @@ export const defaultFilters = {
 }
 
 export default function ListingsPage() {
+  const { listings } = useListings()
   const { showToast } = useToast()
   const [searchParams, setSearchParams] = useSearchParams()
   const areaFromUrl = searchParams.get('area') || ''
@@ -78,7 +79,7 @@ export default function ListingsPage() {
   }
 
   const results = useMemo(() => {
-    let list = filterListingsBySearch(pgListings, query, {
+    let list = filterListingsBySearch(listings, query, {
       area: filters.area,
       gender: filters.gender,
       foodOnly: filters.foodOnly,
@@ -102,7 +103,7 @@ export default function ListingsPage() {
     })
 
     return list
-  }, [query, filters])
+  }, [query, filters, listings])
 
   const title = filters.area ? `PGs in ${filters.area}` : 'Browse PGs'
   const hasActiveFilters = hasActiveListingFilters(filters, query)

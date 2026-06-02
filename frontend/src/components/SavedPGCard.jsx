@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useReturnPath } from '../hooks/useReturnPath'
 import { createNavState, saveReturnPath } from '../utils/navigation'
+import { listingImageSrc } from '../utils/pgImages'
 import { getStartingRent } from '../utils/vacancy'
 
 export default function SavedPGCard({ pg, onRemove }) {
   const from = useReturnPath()
   const rent = getStartingRent(pg.sharing)
+  const coverSrc = listingImageSrc(pg.images?.[0], pg.updatedAt)
   const pgPath = `/pg/${pg.id}`
   const navState = createNavState(from)
 
@@ -16,7 +18,7 @@ export default function SavedPGCard({ pg, onRemove }) {
   return (
     <article className="card-hover flex flex-col overflow-hidden rounded-2xl border border-app bg-card shadow-sm">
       <Link to={pgPath} state={navState} onClick={handleOpen} className="relative aspect-[4/3] overflow-hidden">
-        <img src={pg.images[0]} alt={pg.name} className="h-full w-full object-cover" loading="lazy" />
+        <img key={coverSrc} src={coverSrc} alt={pg.name} className="h-full w-full object-cover" loading="lazy" />
       </Link>
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div>

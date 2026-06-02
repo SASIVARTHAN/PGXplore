@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import AmenityGrid from '../components/AmenityGrid'
 import BackButton from '../components/BackButton'
 import EmptyState from '../components/EmptyState'
+import CurrentBillBadge from '../components/CurrentBillBadge'
 import FoodTypeBadge from '../components/FoodTypeBadge'
 import ImageGallery from '../components/ImageGallery'
 import LocationMap from '../components/LocationMap'
@@ -11,7 +12,7 @@ import ReportModal from '../components/ReportModal'
 import ReviewList from '../components/ReviewList'
 import { useToast } from '../components/Toast'
 import VacancyDisplay from '../components/VacancyDisplay'
-import { getPGById, getSimilarPGs } from '../data/pgData'
+import { useListings } from '../contexts/AdminContext'
 import ThankYouModal from '../components/ThankYouModal'
 import {
   addUserReview,
@@ -20,6 +21,7 @@ import {
   updateUserReview,
 } from '../utils/reviews'
 import { isSaved, toggleSaved, trackRecent } from '../utils/storage'
+import { formatNoticePeriod } from '../utils/formatPolicy'
 import { formatUpdatedAt, getStartingRent } from '../utils/vacancy'
 
 export default function PGDetailPage() {
@@ -29,7 +31,8 @@ export default function PGDetailPage() {
   const browseReturnTo = location.state?.from ?? '/listings'
   const detailReturnTo = `/pg/${id}`
   const { showToast } = useToast()
-  const pg = useMemo(() => getPGById(id), [id])
+  const { getPGById, getSimilarPGs } = useListings()
+  const pg = useMemo(() => getPGById(id), [id, getPGById])
   const [saved, setSaved] = useState(false)
   const [showReport, setShowReport] = useState(false)
   const [userReviews, setUserReviews] = useState([])
@@ -41,7 +44,7 @@ export default function PGDetailPage() {
     trackRecent(listingId)
     setSaved(isSaved(listingId))
     setUserReviews(getUserReviews(listingId))
-  }, [id])
+  }, [id, getPGById])
 
   const averageRating = useMemo(() => {
     if (!pg) return null
@@ -50,6 +53,8 @@ export default function PGDetailPage() {
     const sum = all.reduce((acc, r) => acc + r.rating, 0)
     return sum / all.length
   }, [pg, userReviews])
+
+  const similar = useMemo(() => (pg ? getSimilarPGs(pg) : []), [pg, getSimilarPGs])
 
   if (!pg) {
     return (
@@ -63,8 +68,6 @@ export default function PGDetailPage() {
       </div>
     )
   }
-
-  const similar = getSimilarPGs(pg)
 
   const handleSave = () => {
     const nowSaved = toggleSaved(pg.id)
@@ -124,7 +127,7 @@ export default function PGDetailPage() {
       <BackButton fallback={browseReturnTo} label="Back" returnKey={id} />
 
       <div className="mt-4 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
-        <ImageGallery images={pg.images} name={pg.name} />
+        <ImageGallery images={pg.images} name={pg.name} imageVersion={pg.updatedAt} />
 
         <div className="space-y-5">
           <div className="rounded-2xl border border-app bg-card p-5">
@@ -139,11 +142,17 @@ export default function PGDetailPage() {
             <p className="mt-4 text-2xl font-bold text-brand-emphasis">
               From ₹{getStartingRent(pg.sharing).toLocaleString('en-IN')}/month
             </p>
-            <p className="text-sm text-muted">Deposit: ₹{pg.deposit.toLocaleString('en-IN')}</p>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
+              <p>Deposit: ₹{pg.deposit.toLocaleString('en-IN')}</p>
+              <p>Notice period: {formatNoticePeriod(pg.noticePeriodDays)}</p>
+            </div>
             <p className="mt-1 text-xs text-muted">{formatUpdatedAt(pg.updatedAt)}</p>
           </div>
 
-          <FoodTypeBadge foodAvailable={pg.foodAvailable} foodType={pg.foodType} />
+          <div className="flex flex-wrap gap-2">
+            <FoodTypeBadge foodAvailable={pg.foodAvailable} foodType={pg.foodType} />
+            <CurrentBillBadge included={pg.currentBillIncluded} />
+          </div>
 
           {pg.owner && (
             <div className="rounded-2xl border border-app bg-card p-5">

@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useReturnPath } from '../hooks/useReturnPath'
 import { createNavState, saveReturnPath } from '../utils/navigation'
-import { formatUpdatedAt, getCardVacancyLines, getStartingRent } from '../utils/vacancy'
+import { listingImageSrc } from '../utils/pgImages'
+import { formatUpdatedAt, getStartingRent } from '../utils/vacancy'
 
 export default function PGCard({ pg, returnTo }) {
   const from = useReturnPath(returnTo)
   const rent = getStartingRent(pg.sharing)
-  const vacancyLines = getCardVacancyLines(pg.sharing)
+  const coverSrc = listingImageSrc(pg.images?.[0], pg.updatedAt)
   const pgPath = `/pg/${pg.id}`
 
   const handleOpen = () => {
@@ -22,7 +23,8 @@ export default function PGCard({ pg, returnTo }) {
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={pg.images[0]}
+          key={coverSrc}
+          src={coverSrc}
           alt={pg.name}
           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           loading="lazy"
@@ -51,19 +53,14 @@ export default function PGCard({ pg, returnTo }) {
           ₹{rent.toLocaleString('en-IN')}/month
         </p>
 
-        <div className="space-y-1">
-          {vacancyLines.map((line) => (
-            <p
-              key={line.status}
-              className={`text-sm ${line.tone === 'green' ? 'text-emerald-800 dark:text-emerald-400' : 'text-rose-800 dark:text-rose-400'}`}
-            >
-              {line.tone === 'green' ? '🟢' : '🔴'} {line.status}
-            </p>
-          ))}
-        </div>
+        <p className="text-sm text-muted">Live vacancy · Coming soon</p>
 
         <div className="mt-auto flex items-center justify-between pt-2 text-xs text-muted">
-          <span>{pg.foodAvailable ? `🍽 ${pg.foodType}` : 'No food'}</span>
+          <span>
+            {pg.foodAvailable ? `🍽 ${pg.foodType}` : 'No food'}
+            {pg.currentBillIncluded === true && ' · ⚡ Bill included'}
+            {pg.currentBillIncluded === false && ' · ⚡ Bill extra'}
+          </span>
           <span>{formatUpdatedAt(pg.updatedAt)}</span>
         </div>
       </div>

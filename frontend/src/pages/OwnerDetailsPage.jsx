@@ -2,10 +2,11 @@ import { Link, useParams } from 'react-router-dom'
 import BackButton from '../components/BackButton'
 import PageShell from '../components/PageShell'
 import { ownerProgramInfo } from '../data/companyData'
-import { getPGById } from '../data/pgData'
+import { useListings } from '../contexts/AdminContext'
 
 export default function OwnerDetailsPage() {
   const { pgId } = useParams()
+  const { getPGById } = useListings()
   const pg = pgId ? getPGById(pgId) : null
 
   if (pg?.owner) {

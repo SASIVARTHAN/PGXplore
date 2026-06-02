@@ -69,7 +69,11 @@ export const pgMetaById = {
 export function enrichPG(pg) {
   if (!pg) return null
   const meta = pgMetaById[pg.id] || {}
-  return { ...pg, owner: meta.owner, location: meta.location }
+  return {
+    ...pg,
+    owner: pg.owner ?? meta.owner,
+    location: pg.location ?? meta.location,
+  }
 }
 
 export function mapsEmbedUrl(location) {

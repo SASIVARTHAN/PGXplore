@@ -1,49 +1,66 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AutocompleteSearchBar from '../components/AutocompleteSearchBar'
+import HeroFeatureRotator from '../components/HeroFeatureRotator'
 import { useToast } from '../components/Toast'
 import { createNavState, saveReturnPath } from '../utils/navigation'
-import { AREAS, pgListings } from '../data/pgData'
+import { AREAS } from '../data/pgData'
+import { useListings } from '../contexts/AdminContext'
 import { formatUpdatedAt } from '../utils/vacancy'
 
 export default function HomePage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { listings } = useListings()
   const [query, setQuery] = useState('')
 
   const recent = useMemo(
-    () => [...pgListings].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 4),
-    [],
+    () => [...listings].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 4),
+    [listings],
   )
   const recentlyAdded = useMemo(
-    () => [...pgListings].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3),
-    [],
+    () => [...listings].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3),
+    [listings],
   )
+
+  const heroFeatures = [
+    { icon: '⏳', text: 'Live Vacancy coming soon' },
+    { icon: '📍', text: 'Google Maps verified' },
+    { icon: '🔄', text: 'Realtime updates' },
+    { icon: '✓', text: 'Verified PGs' },
+  ]
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <section className="hero-section">
-        <p className="hero-eyebrow">PGXplore</p>
-        <h1 className="hero-title">Find Your Perfect PG</h1>
-        <p className="hero-subtitle">
-          Verified listings · Real vacancies · Transparent pricing across South Chennai
-        </p>
-        <div className="mt-8 max-w-xl">
-          <AutocompleteSearchBar
-            value={query}
-            onChange={setQuery}
-            navigateOnSearch
-            onInvalidSearch={(msg) => showToast(msg, 'error')}
-          />
+        <div className="hero-section__grid">
+          <div className="hero-section__main">
+            <p className="hero-eyebrow">PGXplore</p>
+            <h1 className="hero-title">Find Your Perfect PG</h1>
+            <p className="hero-subtitle">
+              Verified listings · Real vacancies · Transparent pricing across South Chennai
+            </p>
+            <div className="relative z-20 mt-8 max-w-xl">
+              <AutocompleteSearchBar
+                value={query}
+                onChange={setQuery}
+                navigateOnSearch
+                dropdownElevated
+                onInvalidSearch={(msg) => showToast(msg, 'error')}
+              />
+            </div>
+            <button type="button" onClick={() => navigate('/listings')} className="hero-cta-outline">
+              Browse All PGs →
+            </button>
+          </div>
+
+          <HeroFeatureRotator items={heroFeatures} />
         </div>
-        <button type="button" onClick={() => navigate('/listings')} className="hero-cta-outline">
-          Browse All PGs →
-        </button>
       </section>
 
       <section className="mt-10 grid gap-4 sm:grid-cols-3">
         {[
-          { label: `${pgListings.length}+ Listings`, sub: 'Across South Chennai' },
+          { label: `${listings.length}+ Listings`, sub: 'Across South Chennai' },
           { label: '500+ Beds', sub: 'Tracked availability' },
           { label: 'Daily Updates', sub: 'Fresh vacancy data' },
         ].map((stat) => (

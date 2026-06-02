@@ -21,6 +21,8 @@ export const pgListings = [
     gender: 'Girls',
     rating: 4.5,
     deposit: 13000,
+    noticePeriodDays: 30,
+    currentBillIncluded: true,
     foodAvailable: true,
     foodType: 'Veg',
     featured: true,
@@ -52,6 +54,8 @@ export const pgListings = [
     gender: 'Boys',
     rating: 4.2,
     deposit: 10000,
+    noticePeriodDays: 15,
+    currentBillIncluded: false,
     foodAvailable: true,
     foodType: 'Both',
     featured: true,
@@ -82,6 +86,8 @@ export const pgListings = [
     gender: 'Co-living',
     rating: 4.7,
     deposit: 15000,
+    noticePeriodDays: 30,
+    currentBillIncluded: true,
     foodAvailable: false,
     foodType: 'None',
     featured: true,
@@ -109,6 +115,8 @@ export const pgListings = [
     gender: 'Girls',
     rating: 4.0,
     deposit: 12000,
+    noticePeriodDays: 30,
+    currentBillIncluded: false,
     foodAvailable: true,
     foodType: 'Veg',
     featured: false,
@@ -135,6 +143,8 @@ export const pgListings = [
     gender: 'Boys',
     rating: 3.9,
     deposit: 9000,
+    noticePeriodDays: 15,
+    currentBillIncluded: false,
     foodAvailable: true,
     foodType: 'Non-Veg',
     featured: false,
@@ -161,6 +171,8 @@ export const pgListings = [
     gender: 'Co-living',
     rating: 4.4,
     deposit: 14000,
+    noticePeriodDays: 60,
+    currentBillIncluded: true,
     foodAvailable: true,
     foodType: 'Both',
     featured: false,
@@ -188,6 +200,8 @@ export const pgListings = [
     gender: 'Girls',
     rating: 4.3,
     deposit: 11000,
+    noticePeriodDays: 30,
+    currentBillIncluded: true,
     foodAvailable: true,
     foodType: 'Veg',
     featured: false,
@@ -214,6 +228,8 @@ export const pgListings = [
     gender: 'Boys',
     rating: 4.1,
     deposit: 10500,
+    noticePeriodDays: 15,
+    currentBillIncluded: false,
     foodAvailable: true,
     foodType: 'Non-Veg',
     featured: false,
@@ -236,21 +252,8 @@ export const pgListings = [
   },
 ]
 
+/** @deprecated Use useListings().getPGById — reads live admin-backed store */
 export function getPGById(id) {
   const pg = pgListings.find((p) => p.id === Number(id))
   return enrichPG(pg)
-}
-
-export function getSimilarPGs(pg, limit = 3) {
-  return pgListings
-    .filter(
-      (item) =>
-        item.id !== pg.id &&
-        (item.area === pg.area || item.gender === pg.gender || Math.abs(getMinRent(item) - getMinRent(pg)) < 1500),
-    )
-    .slice(0, limit)
-}
-
-function getMinRent(pg) {
-  return Math.min(...Object.values(pg.sharing).map((room) => room.price))
 }

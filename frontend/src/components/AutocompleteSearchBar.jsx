@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SEARCH_PLACEHOLDER_EXAMPLES, useRotatingPlaceholder } from '../hooks/useRotatingPlaceholder'
+import { useListings } from '../contexts/AdminContext'
 import { getSearchSuggestions } from '../utils/pgSearch'
 import { getSearchValidationMessage, isValidSearchQuery } from '../utils/searchValidation'
 
@@ -14,8 +15,10 @@ export default function AutocompleteSearchBar({
   onSearch,
   onInvalidSearch,
   maxSuggestions = 8,
+  dropdownElevated = false,
 }) {
   const navigate = useNavigate()
+  const { listings } = useListings()
   const listboxId = useId()
   const rootRef = useRef(null)
   const inputRef = useRef(null)
@@ -27,8 +30,8 @@ export default function AutocompleteSearchBar({
   const rotating = useRotatingPlaceholder(showRotatingPlaceholder, placeholderExamples)
 
   const suggestions = useMemo(
-    () => getSearchSuggestions(value, undefined, maxSuggestions),
-    [value, maxSuggestions],
+    () => getSearchSuggestions(value, listings, maxSuggestions),
+    [value, listings, maxSuggestions],
   )
 
   const showDropdown = open && value.trim().length > 0 && suggestions.length > 0
@@ -104,8 +107,12 @@ export default function AutocompleteSearchBar({
     }
   }
 
+  const dropdownClass = dropdownElevated
+    ? 'absolute left-0 right-0 top-full z-[200] mt-1 max-h-72 overflow-y-auto rounded-xl border border-app bg-card py-1 shadow-xl ring-1 ring-black/5 dark:ring-white/10'
+    : 'absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-xl border border-app bg-card py-1 shadow-lg'
+
   return (
-    <div ref={rootRef} className="relative w-full">
+    <div ref={rootRef} className="relative z-20 w-full">
       <div className="flex gap-2">
         <div className="relative min-w-0 flex-1">
           {showRotatingPlaceholder && (
@@ -153,7 +160,7 @@ export default function AutocompleteSearchBar({
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-xl border border-app bg-card py-1 shadow-lg"
+          className={dropdownClass}
         >
           {suggestions.map((item, index) => (
             <li

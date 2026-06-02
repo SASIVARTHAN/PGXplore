@@ -1,0 +1,255 @@
+.admin-layout {
+  @apply flex min-h-screen bg-stone-100 dark:bg-slate-950;
+}
+
+.admin-sidebar {
+  @apply fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-stone-200 bg-white transition-transform dark:border-slate-700 dark:bg-slate-900 lg:static lg:translate-x-0;
+}
+
+.admin-sidebar--open {
+  @apply translate-x-0;
+}
+
+.admin-sidebar-backdrop {
+  @apply fixed inset-0 z-30 bg-black/50 lg:hidden;
+}
+
+.admin-sidebar__brand {
+  @apply flex flex-col border-b border-stone-200 px-5 py-5 dark:border-slate-700;
+}
+
+.admin-sidebar__nav {
+  @apply flex flex-1 flex-col gap-1 overflow-y-auto p-3;
+}
+
+.admin-sidebar__link {
+  @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-slate-800 dark:hover:text-stone-100;
+}
+
+.admin-sidebar__link--active {
+  @apply bg-teal-100 text-teal-900 dark:bg-teal-900/40 dark:text-teal-200;
+}
+
+.admin-main {
+  @apply flex min-h-screen min-w-0 flex-1 flex-col;
+}
+
+.admin-topbar {
+  @apply sticky top-0 z-20 flex items-center justify-between border-b border-stone-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-slate-700 dark:bg-slate-900/95 md:px-6;
+}
+
+.admin-main__toolbar {
+  @apply flex items-center justify-end gap-3 border-b border-stone-200 bg-stone-50/80 px-4 py-2 dark:border-slate-700 dark:bg-slate-900/50 md:px-6;
+}
+
+.admin-content {
+  @apply flex-1 p-4 md:p-6;
+}
+
+.admin-menu-btn {
+  @apply rounded-lg border border-stone-300 px-3 py-1.5 text-lg dark:border-slate-600;
+}
+
+.admin-stat-card {
+  @apply rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900;
+}
+
+.admin-table-wrap {
+  @apply overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-slate-700 dark:bg-slate-900;
+}
+
+.admin-table-toolbar {
+  @apply flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 p-4 dark:border-slate-700;
+}
+
+.admin-table-scroll {
+  @apply overflow-x-auto;
+}
+
+.admin-table {
+  @apply w-full min-w-[640px] text-left text-sm;
+}
+
+.admin-table thead {
+  @apply border-b border-stone-200 bg-stone-50 dark:border-slate-700 dark:bg-slate-800/80;
+}
+
+.admin-table th {
+  @apply px-4 py-3 font-semibold text-stone-900 dark:text-stone-100;
+}
+
+.admin-table td {
+  @apply px-4 py-3 text-stone-600 dark:text-stone-400;
+}
+
+.admin-table tbody tr {
+  @apply border-b border-stone-100 last:border-0 dark:border-slate-800;
+}
+
+.admin-table-pagination {
+  @apply flex items-center justify-between gap-4 border-t border-stone-200 px-4 py-3 dark:border-slate-700;
+}
+
+.admin-chart-card {
+  @apply rounded-2xl border border-stone-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900;
+}
+
+.admin-chart-title {
+  @apply text-sm font-semibold text-stone-900 dark:text-stone-100;
+}
+
+.admin-panel {
+  @apply rounded-2xl border border-stone-200 bg-white p-5 md:p-6 dark:border-slate-700 dark:bg-slate-900;
+}
+
+.admin-panel-title {
+  @apply text-lg font-semibold text-stone-900 dark:text-stone-100;
+}
+
+.admin-form-grid {
+  @apply mt-4 grid gap-4 sm:grid-cols-2;
+}
+
+.admin-badge {
+  @apply inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}
+
+.admin-badge--pending {
+  @apply bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200;
+}
+
+.admin-badge--approved {
+  @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300;
+}
+
+.admin-badge--rejected {
+  @apply bg-rose-100 text-rose-800 dark:bg-rose-950/50 dark:text-rose-300;
+}
+
+.admin-badge--checked_in {
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300;
+}
+
+.admin-badge--checked_out {
+  @apply bg-stone-200 text-stone-800 dark:bg-stone-700 dark:text-stone-200;
+}
+
+.admin-activity-list {
+  @apply mt-4 space-y-3;
+}
+
+.admin-activity-item {
+  @apply flex gap-3 rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-800/50;
+}
+
+.admin-loading {
+  @apply h-24 animate-pulse rounded-xl bg-stone-100 dark:bg-slate-800;
+}
+
+.sharing-config-section {
+  @apply mt-6 rounded-2xl border border-stone-200 bg-stone-50/80 p-4 md:p-5 dark:border-slate-700 dark:bg-slate-800/40;
+}
+
+.sharing-config-section__header {
+  @apply flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between;
+}
+
+.sharing-config-section__title {
+  @apply text-base font-semibold text-stone-900 dark:text-stone-100;
+}
+
+.sharing-config-section__hint {
+  @apply mt-1 max-w-xl text-sm text-stone-500 dark:text-stone-400;
+}
+
+.sharing-config-section__error {
+  @apply mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-200;
+}
+
+.sharing-config-empty {
+  @apply mt-4 rounded-xl border border-dashed border-stone-300 bg-white px-4 py-8 text-center dark:border-slate-600 dark:bg-slate-900/60;
+}
+
+.sharing-config-list {
+  @apply mt-4 space-y-4;
+}
+
+.sharing-config-card {
+  @apply rounded-xl border border-stone-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-slate-900;
+}
+
+.sharing-config-card__head {
+  @apply mb-4 flex flex-wrap items-center gap-2 border-b border-stone-100 pb-3 dark:border-slate-700;
+}
+
+.sharing-config-card__index {
+  @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-xs font-bold text-teal-900 dark:bg-teal-900/50 dark:text-teal-200;
+}
+
+.sharing-config-card__label {
+  @apply min-w-0 flex-1 text-sm font-semibold text-stone-900 dark:text-stone-100;
+}
+
+.sharing-config-card__remove {
+  @apply ml-auto rounded-lg px-2.5 py-1 text-xs font-medium text-rose-600 transition hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40;
+}
+
+.sharing-config-card__grid {
+  @apply grid gap-4 sm:grid-cols-2;
+}
+
+.sharing-type-chips {
+  @apply flex flex-wrap gap-1.5;
+}
+
+.sharing-type-chip {
+  @apply inline-flex rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-700 dark:bg-slate-800 dark:text-stone-300;
+}
+
+.pg-image-manager {
+  @apply mt-6 rounded-2xl border border-stone-200 bg-stone-50/80 p-4 md:p-5 dark:border-slate-700 dark:bg-slate-800/40;
+}
+
+.pg-image-manager__header {
+  @apply flex flex-wrap items-start justify-between gap-3;
+}
+
+.pg-image-manager__title {
+  @apply text-base font-semibold text-stone-900 dark:text-stone-100;
+}
+
+.pg-image-manager__hint {
+  @apply mt-1 max-w-2xl text-sm text-stone-500 dark:text-stone-400;
+}
+
+.pg-image-manager__count {
+  @apply rounded-full bg-stone-200 px-3 py-1 text-xs font-semibold text-stone-700 dark:bg-slate-700 dark:text-stone-200;
+}
+
+.pg-image-manager__grid {
+  @apply mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4;
+}
+
+.pg-image-manager__card {
+  @apply relative aspect-[4/3] overflow-hidden rounded-xl border border-stone-200 bg-stone-100 dark:border-slate-600 dark:bg-slate-900;
+}
+
+.pg-image-manager__preview {
+  @apply h-full w-full object-cover;
+}
+
+.pg-image-manager__cover-badge {
+  @apply absolute left-2 top-2 rounded-full bg-teal-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white;
+}
+
+.pg-image-manager__cover-btn {
+  @apply absolute bottom-2 left-2 right-2 rounded-lg bg-black/60 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm hover:bg-black/75;
+}
+
+.pg-image-manager__remove {
+  @apply absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-lg leading-none text-white hover:bg-rose-600;
+}
+
+.pg-image-manager__actions {
+  @apply mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center;
+}

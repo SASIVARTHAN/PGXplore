@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
     e.preventDefault()
     if (email === DEMO_ADMIN.email && password === DEMO_ADMIN.password) {
       sessionStorage.setItem('pgxplore_admin', 'true')
-      navigate('/admin-dashboard')
+      navigate('/admin')
       return
     }
     setError('Invalid email or password. Use admin@pgxplore.com / admin123 for demo.')
@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md rounded-2xl border border-app bg-card p-8 shadow-sm">
         <BackButton fallback="/" label="Back" />
         <h1 className="mt-4 text-2xl font-bold text-main">Admin Login</h1>
-        <p className="mt-2 text-sm text-muted">Sign in to manage PG listings.</p>
+        <p className="mt-2 text-sm text-muted">Sign in to the admin panel — dashboard, PGs, bookings, users & analytics.</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <label className="block text-sm">

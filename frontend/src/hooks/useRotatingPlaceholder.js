@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 
 export const SEARCH_PLACEHOLDER_EXAMPLES = [
-  'pgs near Tambaram',
-  'pgs under 10k',
-  'pgs without food',
-  'pgs in Chromepet',
-  'girls pg with food',
-  'pgs under 5k',
-  'boys pg near Pallavaram',
-  'pgs with AC',
+  'PGs near Tambaram',
+  'PGs under 10k',
+  'PGs without food',
+  'PGs in Chromepet',
+  'Girls PGs with food',
+  'PGs under 5k',
+  'Boys PGs near Pallavaram',
+  'PGs with AC',
 ]
 
 const ROTATE_MS = 3200

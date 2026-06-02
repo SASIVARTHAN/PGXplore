@@ -1,18 +1,45 @@
-import { getSharingStatus } from '../utils/vacancy'
+import { getSharingLabel, sharingToEntries } from '../utils/sharingTypes'
 
+/** Live vacancy is paused — show pricing with a coming-soon status. */
 export default function VacancyDisplay({ sharing }) {
-  const rows = ['single', 'double', 'triple'].map((type) => getSharingStatus(type, sharing[type]))
+  const rows = sharingToEntries(sharing).map((entry) => ({
+    type: entry.type,
+    label: getSharingLabel(entry.type),
+    price: entry.price,
+    vacancies: entry.vacancies,
+    totalBeds: entry.totalBeds,
+  }))
+
+  if (rows.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-app bg-card p-6 text-center text-sm text-muted">
+        No sharing configurations listed for this PG yet.
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-semibold text-main">Room Availability</h3>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-lg font-semibold text-main">Room availability & pricing</h3>
+        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
+          Live vacancy · Coming soon
+        </span>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((row) => (
           <div key={row.type} className="rounded-xl border border-app bg-card p-4">
             <p className="text-sm font-medium text-muted">{row.label}</p>
-            <p className="mt-1 text-xl font-bold text-main">₹{row.price.toLocaleString('en-IN')}</p>
-            <p className={`mt-2 text-sm font-medium ${row.tone === 'green' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-              {row.tone === 'green' ? '🟢' : '🔴'} {row.status}
+            <p className="mt-1 text-xl font-bold text-main">
+              {row.price != null ? `₹${row.price.toLocaleString('en-IN')}` : '—'}
+              <span className="text-sm font-normal text-muted"> / month</span>
+            </p>
+            <p className="mt-2 text-xs text-muted">
+              {row.totalBeds != null ? `${row.totalBeds} beds · ` : ''}
+              {row.vacancies ?? 0} vacancies listed
+            </p>
+            <p className="mt-2 min-h-5 text-sm font-medium text-muted invisible" aria-hidden>
+              &nbsp;
             </p>
           </div>
         ))}

@@ -5,25 +5,26 @@ import EmptyState from '../components/EmptyState'
 import PGCard from '../components/PGCard'
 import SavedPGCard from '../components/SavedPGCard'
 import { useToast } from '../components/Toast'
-import { pgListings } from '../data/pgData'
+import { useListings } from '../contexts/AdminContext'
 import { getRecentIds, getSavedIds, removeSaved } from '../utils/storage'
 
 export default function SavedPage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { listings } = useListings()
   const [savedVersion, setSavedVersion] = useState(0)
 
   const recentIds = getRecentIds()
 
   const savedPGs = useMemo(() => {
     return getSavedIds()
-      .map((id) => pgListings.find((pg) => pg.id === id))
+      .map((id) => listings.find((pg) => pg.id === id))
       .filter(Boolean)
-  }, [savedVersion])
+  }, [savedVersion, listings])
 
   const recentPGs = useMemo(
-    () => recentIds.map((id) => pgListings.find((pg) => pg.id === id)).filter(Boolean),
-    [recentIds],
+    () => recentIds.map((id) => listings.find((pg) => pg.id === id)).filter(Boolean),
+    [recentIds, listings],
   )
 
   const handleRemove = useCallback(
