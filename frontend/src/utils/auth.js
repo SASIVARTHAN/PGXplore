@@ -52,6 +52,11 @@ export function canReviewRequests(role) {
   return role === ROLES.ADMIN || role === ROLES.PRIVILEGED
 }
 
+/** Only privileged accounts may approve (accept) a PG deletion request. */
+export function canApproveDeletion(role) {
+  return role === ROLES.PRIVILEGED
+}
+
 export function canManageUsers(role) {
   return role === ROLES.ADMIN
 }

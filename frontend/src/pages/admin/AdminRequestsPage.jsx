@@ -10,7 +10,7 @@ function StatusBadge({ status }) {
 
 export default function AdminRequestsPage() {
   const { state, resolveDeletionRequest } = useAdmin()
-  const { session } = useAuth()
+  const { session, canApproveDeletion } = useAuth()
   const { showToast } = useToast()
 
   const requests = state.deletionRequests || []
@@ -49,11 +49,17 @@ export default function AdminRequestsPage() {
       label: 'Actions',
       render: (r) =>
         r.status === 'pending' ? (
-          <div className="flex flex-wrap gap-1">
-            <button type="button" className="btn-primary px-2 py-1 text-xs" onClick={() => resolve(r, true)}>
-              Approve
-            </button>
-            <button type="button" className="btn-danger px-2 py-1 text-xs" onClick={() => resolve(r, false)}>
+          <div className="flex flex-wrap gap-1.5">
+            {canApproveDeletion ? (
+              <button type="button" className="action-btn action-btn--approve" onClick={() => resolve(r, true)}>
+                Approve
+              </button>
+            ) : (
+              <span className="text-xs text-muted" title="Only privileged accounts can accept deletion requests.">
+                Privileged approval required
+              </span>
+            )}
+            <button type="button" className="action-btn action-btn--danger" onClick={() => resolve(r, false)}>
               Reject
             </button>
           </div>

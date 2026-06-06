@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import BrandLogo from './BrandLogo'
 import ThemeToggle from './ThemeToggle'
 
@@ -10,6 +11,7 @@ const links = [
 
 export default function Header() {
   const location = useLocation()
+  const { session, canAccessAdminPanel } = useAuth()
   const hideNav = location.pathname === '/'
 
   if (hideNav) return null
@@ -38,12 +40,19 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              to="/"
-              className="text-sm font-medium text-neutral-800 transition hover:text-brand-900 dark:text-stone-300 dark:hover:text-brand-400"
-            >
-              Login
-            </Link>
+            {session && canAccessAdminPanel ? (
+              <Link to="/admin" className="header-admin-link">
+                <span aria-hidden>🛠️</span>
+                Admin Panel
+              </Link>
+            ) : (
+              <Link
+                to="/"
+                className="text-sm font-medium text-neutral-800 transition hover:text-brand-900 dark:text-stone-300 dark:hover:text-brand-400"
+              >
+                Login
+              </Link>
+            )}
           </nav>
           <ThemeToggle />
         </div>

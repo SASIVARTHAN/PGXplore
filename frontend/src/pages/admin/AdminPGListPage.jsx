@@ -80,18 +80,18 @@ export default function AdminPGListPage() {
         const pending = getPendingDeletionRequest(row.id)
         return (
           <div className="flex flex-wrap gap-2">
-            <Link to={`/pg/${row.id}`} className="text-xs text-brand-emphasis hover:underline">
+            <Link to={`/pg/${row.id}`} className="action-btn action-btn--view">
               View
             </Link>
-            <Link to={`/admin/pgs/${row.id}/edit`} className="text-xs text-brand-emphasis hover:underline">
+            <Link to={`/admin/pgs/${row.id}/edit`} className="action-btn action-btn--edit">
               Edit
             </Link>
             {canRequestPGDeletion &&
               (pending ? (
                 <span className="text-xs text-amber-600 dark:text-amber-400">Awaiting review</span>
               ) : (
-                <button type="button" onClick={() => handleRequestDeletion(row)} className="text-xs text-rose-600">
-                  Request deletion
+                <button type="button" onClick={() => handleRequestDeletion(row)} className="action-btn action-btn--danger">
+                  Delete
                 </button>
               ))}
           </div>
@@ -110,8 +110,8 @@ export default function AdminPGListPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">Add and edit PGs. Deletion needs reviewer approval — the PG stays active until then.</p>
-        <Link to="/admin/pgs/new" className="btn-primary">
-          + Add New PG
+        <Link to="/admin/pgs/new" className="action-btn action-btn--add">
+          <span aria-hidden>＋</span> Add New PG
         </Link>
       </div>
       <AdminDataTable

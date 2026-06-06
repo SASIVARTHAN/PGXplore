@@ -46,7 +46,7 @@ export default function AdminReviewsPage() {
       render: (r) => (
         <button
           type="button"
-          className="text-xs text-rose-600"
+          className="action-btn action-btn--danger"
           onClick={() => {
             deleteReview(r.reviewKey)
             showToast('Review removed.')

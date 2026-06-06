@@ -89,6 +89,58 @@
   @apply flex flex-wrap items-center gap-2;
 }
 
+/* ── Animated table/inline action buttons (View / Edit / Delete / Add) ── */
+.action-btn {
+  @apply inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-semibold no-underline;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px -6px rgba(15, 23, 42, 0.35);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.action-btn--view {
+  @apply border-brand-200 bg-brand-50 text-brand-800 hover:bg-brand-100 dark:border-brand-400/30 dark:bg-brand-500/10 dark:text-brand-200 dark:hover:bg-brand-500/20;
+}
+
+.action-btn--edit {
+  @apply border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-200 dark:hover:bg-amber-500/20;
+}
+
+.action-btn--danger {
+  @apply border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20;
+}
+
+.action-btn--approve {
+  @apply border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-400/30 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20;
+}
+
+.action-btn--add {
+  @apply gap-1.5 rounded-xl border-transparent bg-brand-600 px-4 py-2.5 text-sm text-white hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400;
+}
+
+.action-btn--add:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 22px -8px rgba(13, 148, 136, 0.5);
+}
+
+.header-admin-link {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-brand-300 bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-800 no-underline dark:border-brand-400/40 dark:bg-brand-500/10 dark:text-brand-200;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.header-admin-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px -6px rgba(13, 148, 136, 0.45);
+  @apply bg-brand-100 dark:bg-brand-500/20;
+}
+
 .gallery-nav-btn {
   @apply absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-2xl font-bold text-white transition hover:bg-black/70;
 }
@@ -368,8 +420,41 @@
   @apply duration-200;
 }
 
+.entry-option {
+  overflow: hidden;
+}
+
+.entry-option::before {
+  content: "";
+  @apply pointer-events-none absolute inset-0;
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 65%
+  );
+  background-size: 220% 100%;
+  background-position: 150% 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
 .entry-option:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 16px 34px -14px rgba(13, 148, 136, 0.45);
+}
+
+.entry-option:hover::before {
+  opacity: 1;
+  animation: entry-sheen 0.9s ease-out;
+}
+
+.entry-option__arrow {
+  transition: transform 0.25s ease;
+}
+
+.entry-option:hover .entry-option__arrow {
+  transform: translateX(6px);
 }
 
 .entry-option__icon {
@@ -393,11 +478,81 @@
   animation: entry-sheen 4.5s ease-in-out infinite;
 }
 
+/* Staggered pop-in for card contents */
+@keyframes entry-pop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.entry-stagger {
+  opacity: 0;
+  animation: entry-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Animated gradient text accent */
+@keyframes entry-text-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.entry-shimmer-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-brand-600),
+    var(--color-accent-500),
+    var(--color-emerald-500, #10b981),
+    var(--color-brand-600)
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: entry-text-shimmer 4s linear infinite;
+}
+
+/* Soft pulsing glow ring around the entry card */
+@keyframes entry-card-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(13, 148, 136, 0.1),
+      0 20px 50px -12px rgba(13, 148, 136, 0.25),
+      0 0 36px -10px rgba(13, 148, 136, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(124, 58, 237, 0.18),
+      0 24px 60px -12px rgba(124, 58, 237, 0.3),
+      0 0 52px -8px rgba(124, 58, 237, 0.35);
+  }
+}
+
+.entry-card {
+  animation: entry-card-pulse 6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .entry-blob,
   .entry-float,
   .entry-particle,
+  .entry-card,
+  .entry-shimmer-text,
   .entry-logo-wrap::after {
+    animation: none;
+  }
+
+  .entry-stagger {
+    opacity: 1;
     animation: none;
   }
 }

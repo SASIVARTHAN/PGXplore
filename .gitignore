@@ -1,3 +1,6 @@
+# Nested duplicate project copy (not part of the app)
+/PGXplore-main/
+
 # Dependencies & build
 node_modules/
 dist/

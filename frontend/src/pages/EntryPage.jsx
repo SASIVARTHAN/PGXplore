@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/ThemeToggle'
+import { useAuth } from '../contexts/AuthContext'
 
 const FEATURES = [
   { icon: '🛡️', label: 'Verified listings' },
@@ -19,6 +20,8 @@ const PARTICLES = [
 
 export default function EntryPage() {
   const navigate = useNavigate()
+  const { session, canAccessAdminPanel } = useAuth()
+  const isStaff = Boolean(session && canAccessAdminPanel)
 
   return (
     <div className="entry-page relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-brand-50 via-stone-50 to-brand-100 px-4 dark:from-slate-950 dark:via-slate-900 dark:to-brand-950">
@@ -58,7 +61,7 @@ export default function EntryPage() {
         <ThemeToggle />
       </div>
 
-      <div className="entry-rise entry-glow relative z-10 w-full max-w-lg rounded-3xl border border-white/60 bg-white/80 p-7 text-center shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/70 sm:p-9">
+      <div className="entry-rise entry-glow entry-card relative z-10 w-full max-w-lg rounded-3xl border border-white/60 bg-white/80 p-7 text-center shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/70 sm:p-9">
         <div className="entry-float entry-logo-wrap max-w-[20rem]">
           <img
             src="/pgxplore-logo.png"
@@ -69,15 +72,17 @@ export default function EntryPage() {
           />
         </div>
 
-        <p className="mt-5 text-base text-muted">
-          Find trusted PGs with real vacancy updates in Chennai.
+        <p className="entry-stagger mt-5 text-base text-muted" style={{ animationDelay: '0.15s' }}>
+          Find trusted PGs with real vacancy updates in{' '}
+          <span className="entry-shimmer-text font-semibold">Chennai</span>.
         </p>
 
         <div className="mt-5 flex flex-wrap justify-center gap-2">
-          {FEATURES.map((f) => (
+          {FEATURES.map((f, i) => (
             <span
               key={f.label}
-              className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-brand-50/80 px-3 py-1.5 text-xs font-medium text-brand-900 dark:border-white/10 dark:bg-white/5 dark:text-brand-100"
+              className="entry-stagger inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-brand-50/80 px-3 py-1.5 text-xs font-medium text-brand-900 dark:border-white/10 dark:bg-white/5 dark:text-brand-100"
+              style={{ animationDelay: `${0.25 + i * 0.1}s` }}
             >
               <span aria-hidden>{f.icon}</span>
               {f.label}
@@ -89,7 +94,8 @@ export default function EntryPage() {
           <button
             type="button"
             onClick={() => navigate('/home')}
-            className="entry-option bg-gradient-to-r from-brand-600 to-accent-600 text-white shadow-lg shadow-brand-600/25 hover:from-brand-500 hover:to-accent-500 dark:from-brand-500 dark:to-accent-500"
+            className="entry-option entry-stagger bg-gradient-to-r from-brand-600 to-accent-600 text-white shadow-lg shadow-brand-600/25 hover:from-brand-500 hover:to-accent-500 dark:from-brand-500 dark:to-accent-500"
+            style={{ animationDelay: '0.55s' }}
           >
             <span className="entry-option__icon bg-white/20" aria-hidden>
               🏠
@@ -100,28 +106,51 @@ export default function EntryPage() {
                 Browse PG listings — no login required
               </span>
             </span>
-            <span aria-hidden className="text-lg">→</span>
+            <span aria-hidden className="entry-option__arrow text-lg">→</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => navigate('/admin-login')}
-            className="entry-option border border-brand-200 bg-white text-brand-900 hover:border-brand-300 hover:bg-brand-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-          >
-            <span className="entry-option__icon bg-brand-100 dark:bg-white/10" aria-hidden>
-              🔐
-            </span>
-            <span className="flex-1">
-              <span className="block text-base">Login</span>
-              <span className="block text-xs font-normal text-muted">
-                Admin &amp; privileged team access
+          {isStaff ? (
+            <button
+              type="button"
+              onClick={() => navigate('/admin')}
+              className="entry-option entry-stagger border border-brand-200 bg-white text-brand-900 hover:border-brand-300 hover:bg-brand-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+              style={{ animationDelay: '0.7s' }}
+            >
+              <span className="entry-option__icon bg-brand-100 dark:bg-white/10" aria-hidden>
+                🛠️
               </span>
-            </span>
-            <span aria-hidden className="text-lg">→</span>
-          </button>
+              <span className="flex-1">
+                <span className="block text-base">Back to Admin Panel</span>
+                <span className="block text-xs font-normal text-muted">
+                  You&apos;re signed in as {session.name}
+                </span>
+              </span>
+              <span aria-hidden className="entry-option__arrow text-lg">→</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigate('/admin-login')}
+              className="entry-option entry-stagger border border-brand-200 bg-white text-brand-900 hover:border-brand-300 hover:bg-brand-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+              style={{ animationDelay: '0.7s' }}
+            >
+              <span className="entry-option__icon bg-brand-100 dark:bg-white/10" aria-hidden>
+                🔐
+              </span>
+              <span className="flex-1">
+                <span className="block text-base">Login</span>
+                <span className="block text-xs font-normal text-muted">
+                  Admin &amp; privileged team access
+                </span>
+              </span>
+              <span aria-hidden className="entry-option__arrow text-lg">→</span>
+            </button>
+          )}
         </div>
 
-        <p className="mt-6 text-xs text-muted">No login required to browse PG listings.</p>
+        <p className="entry-stagger mt-6 text-xs text-muted" style={{ animationDelay: '0.85s' }}>
+          No login required to browse PG listings.
+        </p>
       </div>
     </div>
   )

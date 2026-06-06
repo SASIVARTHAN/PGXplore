@@ -8,7 +8,7 @@ import {
   pushNotification,
 } from '../admin/adminStore'
 import { createSeedState, ROOM_TYPES } from '../admin/seedData'
-import { canModifyAccount } from '../utils/auth'
+import { canApproveDeletion, canModifyAccount } from '../utils/auth'
 import { getPGByIdFromListings, getSimilarPGsFromListings } from '../utils/listingsHelpers'
 
 const AdminContext = createContext(null)
@@ -141,10 +141,13 @@ export function AdminProvider({ children }) {
     [save],
   )
 
-  /** Privileged/admin reviewer approves or rejects a deletion request. */
+  /** Privileged reviewers approve a deletion request; reviewers may reject. */
   const resolveDeletionRequest = useCallback(
     ({ requestId, approve, reviewer }) => {
       let result = { ok: false, message: 'Could not update request.' }
+      if (approve && !canApproveDeletion(reviewer?.role)) {
+        return { ok: false, message: 'Only privileged accounts can accept deletion requests.' }
+      }
       save((prev) => {
         const next = { ...prev }
         const requests = next.deletionRequests || []
