@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useReturnPath } from '../hooks/useReturnPath'
+import { getFoodAvailabilityLabel } from '../utils/foodAvailability'
 import { createNavState, saveReturnPath } from '../utils/navigation'
 import { listingImageSrc } from '../utils/pgImages'
 import { formatUpdatedAt, getStartingRent } from '../utils/vacancy'
@@ -19,14 +20,14 @@ export default function PGCard({ pg, returnTo }) {
       to={pgPath}
       state={createNavState(from)}
       onClick={handleOpen}
-      className="card-hover group flex flex-col overflow-hidden rounded-2xl border border-app bg-card shadow-sm"
+      className="card-hover group flex h-full flex-col overflow-hidden rounded-2xl border border-app bg-card shadow-sm"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-card-muted">
         <img
           key={coverSrc}
           src={coverSrc}
           alt={pg.name}
-          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
           loading="lazy"
         />
         {pg.featured && (
@@ -38,13 +39,13 @@ export default function PGCard({ pg, returnTo }) {
 
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
-          <div>
-            <h3 className="font-semibold text-main">{pg.name}</h3>
+          <div className="min-w-0">
+            <h3 className="truncate font-semibold text-main">{pg.name}</h3>
             <p className="text-sm text-muted">
               {pg.area} · {pg.gender}
             </p>
           </div>
-          <span className="rounded-lg bg-amber-50 px-2 py-1 text-sm font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
+          <span className="shrink-0 rounded-lg bg-amber-50 px-2 py-1 text-sm font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
             ⭐ {pg.rating}
           </span>
         </div>
@@ -53,15 +54,15 @@ export default function PGCard({ pg, returnTo }) {
           ₹{rent.toLocaleString('en-IN')}/month
         </p>
 
-        <p className="text-sm text-muted">Live vacancy · Coming soon</p>
+        <p className="text-sm text-muted">Beds available · Feature coming soon</p>
 
-        <div className="mt-auto flex items-center justify-between pt-2 text-xs text-muted">
-          <span>
-            {pg.foodAvailable ? `🍽 ${pg.foodType}` : 'No food'}
+        <div className="mt-auto flex items-center justify-between gap-2 pt-2 text-xs text-muted">
+          <span className="truncate">
+            {getFoodAvailabilityLabel(pg)}
             {pg.currentBillIncluded === true && ' · ⚡ Bill included'}
             {pg.currentBillIncluded === false && ' · ⚡ Bill extra'}
           </span>
-          <span>{formatUpdatedAt(pg.updatedAt)}</span>
+          <span className="shrink-0">{formatUpdatedAt(pg.updatedAt)}</span>
         </div>
       </div>
     </Link>

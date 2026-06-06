@@ -44,7 +44,7 @@ export default function SharingConfigEditor({ value, onChange, error }) {
         <div>
           <h3 className="sharing-config-section__title">Room & sharing configuration</h3>
           <p className="sharing-config-section__hint">
-            Add each sharing type offered at this PG. Set rent, vacancies, and optional total beds per type.
+            Add each sharing type offered at this PG. Set rent and optional total beds per type. Vacancies are optional.
           </p>
         </div>
         <button
@@ -121,15 +121,16 @@ export default function SharingConfigEditor({ value, onChange, error }) {
                 </label>
 
                 <label className="block text-sm">
-                  <span className="font-medium text-main">Available vacancies</span>
+                  <span className="font-medium text-main">
+                    Available vacancies <span className="font-normal text-muted">(optional)</span>
+                  </span>
                   <input
                     type="number"
                     min="0"
                     className="input-app mt-1 w-full"
-                    placeholder="e.g. 2"
+                    placeholder="Leave blank — coming soon"
                     value={config.vacancies}
                     onChange={(e) => updateConfiguration(config.id, { vacancies: e.target.value })}
-                    required
                   />
                 </label>
 

@@ -1,4 +1,5 @@
 import { AREAS, pgListings } from '../data/pgData'
+import { isFoodServiceAvailable } from './foodAvailability'
 import { getStartingRent } from './vacancy'
 
 /** Normalized area lookup (handles typos like thambaram → Tambaram) */
@@ -161,7 +162,7 @@ function findAreaInText(text) {
 }
 
 function pgSearchableText(pg) {
-  return [pg.name, pg.area, pg.gender, pg.foodAvailable ? 'food' : 'no food', ...(pg.amenities || [])]
+  return [pg.name, pg.area, pg.gender, isFoodServiceAvailable(pg) ? 'food' : 'no food', ...(pg.amenities || [])]
     .join(' ')
     .toLowerCase()
 }
@@ -179,8 +180,8 @@ function matchesParsedConstraints(pg, parsed) {
   if (parsed.maxRent != null && rent > parsed.maxRent) return false
   if (parsed.minRent != null && rent < parsed.minRent) return false
 
-  if (parsed.requireFood === true && !pg.foodAvailable) return false
-  if (parsed.excludeFood === true && pg.foodAvailable) return false
+  if (parsed.requireFood === true && !isFoodServiceAvailable(pg)) return false
+  if (parsed.excludeFood === true && isFoodServiceAvailable(pg)) return false
 
   if (parsed.gender && pg.gender !== parsed.gender) return false
 
@@ -218,7 +219,7 @@ export function filterListingsBySearch(listings, rawQuery, uiFilters = {}) {
 
   if (uiFilters.area) list = list.filter((pg) => pg.area === uiFilters.area)
   if (uiFilters.gender) list = list.filter((pg) => pg.gender === uiFilters.gender)
-  if (uiFilters.foodOnly) list = list.filter((pg) => pg.foodAvailable)
+  if (uiFilters.foodOnly) list = list.filter((pg) => isFoodServiceAvailable(pg))
   if (uiFilters.acOnly) list = list.filter((pg) => pg.amenities?.includes('AC'))
   if (uiFilters.availableOnly && uiFilters.getVacancySummary) {
     list = list.filter((pg) => uiFilters.getVacancySummary(pg.sharing).length > 0)

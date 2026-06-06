@@ -285,6 +285,123 @@
     0 20px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
+/* ── Entry / landing page animations ──────────────────── */
+@keyframes entry-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes entry-rise {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes entry-blob {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(28px, -34px) scale(1.12);
+  }
+  66% {
+    transform: translate(-22px, 18px) scale(0.94);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes entry-drift {
+  0% {
+    transform: translateY(10px) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(-140px) rotate(22deg);
+    opacity: 0;
+  }
+}
+
+@keyframes entry-sheen {
+  0% {
+    background-position: -150% 0;
+  }
+  100% {
+    background-position: 250% 0;
+  }
+}
+
+.entry-blob {
+  @apply pointer-events-none absolute rounded-full blur-3xl;
+  animation: entry-blob 16s ease-in-out infinite;
+}
+
+.entry-rise {
+  animation: entry-rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.entry-float {
+  animation: entry-float 5.5s ease-in-out infinite;
+}
+
+.entry-particle {
+  @apply pointer-events-none absolute select-none;
+  animation: entry-drift linear infinite;
+}
+
+.entry-option {
+  @apply relative flex w-full items-center gap-3 rounded-2xl px-5 py-4 text-left font-semibold transition;
+  @apply duration-200;
+}
+
+.entry-option:hover {
+  transform: translateY(-2px);
+}
+
+.entry-option__icon {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl;
+}
+
+.entry-logo-wrap {
+  @apply relative mx-auto overflow-hidden rounded-2xl bg-white p-4 shadow-sm ring-1 ring-brand-100;
+}
+
+.entry-logo-wrap::after {
+  content: "";
+  @apply pointer-events-none absolute inset-0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: entry-sheen 4.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry-blob,
+  .entry-float,
+  .entry-particle,
+  .entry-logo-wrap::after {
+    animation: none;
+  }
+}
+
 @media (max-width: 768px) {
   .detail-actions {
     position: sticky;

@@ -1,24 +1,35 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import BackButton from '../components/BackButton'
 import ThemeToggle from '../components/ThemeToggle'
-
-const DEMO_ADMIN = { email: 'admin@pgxplore.com', password: 'admin123' }
+import { useAuth } from '../contexts/AuthContext'
 
 export default function AdminLoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { session, canAccessAdminPanel, login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
+  if (session) {
+    return <Navigate to={canAccessAdminPanel ? '/admin' : '/home'} replace />
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (email === DEMO_ADMIN.email && password === DEMO_ADMIN.password) {
-      sessionStorage.setItem('pgxplore_admin', 'true')
-      navigate('/admin')
+    const result = login(email, password)
+    if (!result.ok) {
+      setError(result.error)
       return
     }
-    setError('Invalid email or password. Use admin@pgxplore.com / admin123 for demo.')
+    const role = result.session.role
+    if (role === 'admin' || role === 'privileged') {
+      const target = location.state?.from?.startsWith('/admin') ? location.state.from : '/admin'
+      navigate(target, { replace: true })
+    } else {
+      navigate('/home', { replace: true })
+    }
   }
 
   return (
@@ -29,8 +40,10 @@ export default function AdminLoginPage() {
 
       <div className="w-full max-w-md rounded-2xl border border-app bg-card p-8 shadow-sm">
         <BackButton fallback="/" label="Back" />
-        <h1 className="mt-4 text-2xl font-bold text-main">Admin Login</h1>
-        <p className="mt-2 text-sm text-muted">Sign in to the admin panel — dashboard, PGs, bookings, users & analytics.</p>
+        <h1 className="mt-4 text-2xl font-bold text-main">Sign in</h1>
+        <p className="mt-2 text-sm text-muted">
+          Admins manage PGs and users. Privileged users review PG deletion requests.
+        </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <label className="block text-sm">
@@ -58,6 +71,15 @@ export default function AdminLoginPage() {
             Login
           </button>
         </form>
+
+        <div className="mt-6 rounded-xl border border-app bg-card-muted/40 p-4 text-xs text-muted">
+          <p className="font-medium text-main">Demo accounts</p>
+          <ul className="mt-2 space-y-1">
+            <li>Admin — admin@pgxplore.com / admin123</li>
+            <li>Privileged — arjun@pgxplore.com / priv123</li>
+            <li>Normal — user@pgxplore.com / user123</li>
+          </ul>
+        </div>
       </div>
     </div>
   )

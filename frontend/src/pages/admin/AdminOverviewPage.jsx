@@ -20,18 +20,15 @@ export default function AdminOverviewPage() {
         <AdminStatCard label="Occupied Rooms" value={stats.occupiedRooms} tone="amber" />
         <AdminStatCard label="Vacant Rooms" value={stats.vacantRooms} tone="green" />
         <AdminStatCard label="Total Users" value={stats.totalUsers} />
-        <AdminStatCard label="Total Bookings" value={stats.totalBookings} />
+        <AdminStatCard label="Pending Requests" value={stats.pendingDeletionRequests} tone="amber" />
         <AdminStatCard label="Total Revenue" value={formatMoney(stats.totalRevenue)} sub="Approved & completed" />
-        <AdminStatCard label="Pending Bookings" value={stats.pendingBookings} tone="amber" />
+        <AdminStatCard label="Total Beds" value={stats.totalBeds} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="admin-panel">
           <div className="flex items-center justify-between">
             <h2 className="admin-panel-title">Recent Activities</h2>
-            <Link to="/admin/bookings" className="text-sm text-brand-emphasis hover:underline">
-              View all
-            </Link>
           </div>
           <ul className="admin-activity-list">
             {state.activities.slice(0, 6).map((a) => (
@@ -54,11 +51,11 @@ export default function AdminOverviewPage() {
             <Link to="/admin/pgs/new" className="btn-primary text-center">
               Add New PG
             </Link>
-            <Link to="/admin/bookings" className="btn-secondary text-center">
-              Manage Bookings
+            <Link to="/admin/pgs" className="btn-secondary text-center">
+              PG Management
             </Link>
-            <Link to="/admin/rooms" className="btn-secondary text-center">
-              Room Management
+            <Link to="/admin/requests" className="btn-secondary text-center">
+              Requests
             </Link>
             <Link to="/admin/analytics" className="btn-secondary text-center">
               View Analytics

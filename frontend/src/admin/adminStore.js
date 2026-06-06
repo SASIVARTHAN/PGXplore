@@ -1,4 +1,5 @@
 import { pgListings } from '../data/pgData'
+import { staffAccounts } from '../utils/auth'
 import { createSeedState } from './seedData'
 
 export const ADMIN_STATE_KEY = 'pgxplore_admin_state'
@@ -18,9 +19,34 @@ function write(state) {
   localStorage.setItem(KEY, JSON.stringify(state))
 }
 
+/** Upgrade older persisted state to the current shape (roles, staff, requests). */
+function migrateState(state) {
+  const next = { ...state }
+  next.deletionRequests = Array.isArray(next.deletionRequests) ? next.deletionRequests : []
+
+  const users = Array.isArray(next.users) ? [...next.users] : []
+  const existingEmails = new Set(users.map((u) => u.email?.toLowerCase()))
+  // Ensure protected staff (admin + privileged) accounts always exist.
+  staffAccounts().forEach((staff) => {
+    const idx = users.findIndex((u) => u.email?.toLowerCase() === staff.email.toLowerCase())
+    if (idx === -1) {
+      users.unshift(staff)
+      existingEmails.add(staff.email.toLowerCase())
+    } else {
+      users[idx] = { ...users[idx], role: staff.role, protected: true }
+    }
+  })
+  next.users = users.map((u) => ({ ...u, role: u.role || 'normal' }))
+  return next
+}
+
 export function loadAdminState() {
   const saved = read()
-  if (saved?.pgs?.length) return saved
+  if (saved?.pgs?.length) {
+    const migrated = migrateState(saved)
+    write(migrated)
+    return migrated
+  }
   const seed = createSeedState(pgListings)
   write(seed)
   return seed
@@ -51,6 +77,7 @@ export function computeDashboardStats(state) {
     totalBookings: bookings.length,
     totalRevenue: revenue,
     pendingBookings: bookings.filter((b) => b.status === 'pending').length,
+    pendingDeletionRequests: (state.deletionRequests || []).filter((r) => r.status === 'pending').length,
   }
 }
 

@@ -61,9 +61,15 @@ export function entriesToSharing(entries) {
         ? Number(totalBedsRaw)
         : defaultBeds
 
+    const vacanciesRaw = entry.vacancies
+    const vacancies =
+      vacanciesRaw === '' || vacanciesRaw == null || !Number.isFinite(Number(vacanciesRaw))
+        ? 0
+        : Number(vacanciesRaw)
+
     result[entry.type] = {
       price: Number(entry.price),
-      vacancies: Number(entry.vacancies),
+      vacancies,
       totalBeds: Number.isFinite(totalBeds) && totalBeds > 0 ? totalBeds : 1,
     }
   }
@@ -112,9 +118,12 @@ export function validateSharingConfigs(configs) {
       return { valid: false, message: `Enter a valid monthly rent for ${label}.` }
     }
 
-    const vacancies = Number(config.vacancies)
-    if (!Number.isFinite(vacancies) || vacancies < 0) {
-      return { valid: false, message: `Enter valid available vacancies for ${label}.` }
+    // Vacancies are optional for now — only validate when a value is provided.
+    if (config.vacancies !== '' && config.vacancies != null) {
+      const vacancies = Number(config.vacancies)
+      if (!Number.isFinite(vacancies) || vacancies < 0) {
+        return { valid: false, message: `Enter valid available vacancies for ${label}.` }
+      }
     }
 
     if (config.totalBeds !== '' && config.totalBeds != null) {

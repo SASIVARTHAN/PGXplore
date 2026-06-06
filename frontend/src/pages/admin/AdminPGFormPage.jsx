@@ -11,6 +11,11 @@ import {
   validateSharingConfigs,
 } from '../../utils/sharingTypes'
 import { normalizeImageList, validatePgImages } from '../../utils/pgImages'
+import {
+  FOOD_AVAILABILITY_OPTIONS,
+  foodAvailabilityToLegacyFields,
+  normalizeFoodAvailability,
+} from '../../utils/foodAvailability'
 
 const emptyForm = {
   name: '',
@@ -19,8 +24,7 @@ const emptyForm = {
   deposit: 10000,
   noticePeriodDays: 30,
   currentBillIncluded: false,
-  foodAvailable: true,
-  foodType: 'Veg',
+  foodAvailability: 'available',
   featured: false,
   description: '',
   amenities: ['WiFi'],
@@ -49,8 +53,7 @@ export default function AdminPGFormPage() {
       deposit: existing.deposit,
       noticePeriodDays: existing.noticePeriodDays ?? 30,
       currentBillIncluded: existing.currentBillIncluded ?? false,
-      foodAvailable: existing.foodAvailable,
-      foodType: existing.foodType || 'Veg',
+      foodAvailability: normalizeFoodAvailability(existing),
       featured: existing.featured,
       description: existing.description,
       amenities: existing.amenities || [],
@@ -87,8 +90,7 @@ export default function AdminPGFormPage() {
     deposit: Number(form.deposit),
     noticePeriodDays: Number(form.noticePeriodDays),
     currentBillIncluded: Boolean(form.currentBillIncluded),
-    foodAvailable: form.foodAvailable,
-    foodType: form.foodType,
+    ...foodAvailabilityToLegacyFields(form.foodAvailability),
     featured: form.featured,
     description: form.description.trim(),
     amenities: form.amenities,
@@ -266,6 +268,20 @@ export default function AdminPGFormPage() {
 
       <div className="mt-4 space-y-3 rounded-xl border border-app bg-card-muted/50 p-4">
         <p className="text-sm font-medium text-main">Utilities & listing options</p>
+        <label className="block max-w-xs text-sm">
+          <span className="font-medium text-main">Food availability</span>
+          <select
+            className="select-app mt-1 w-full"
+            value={form.foodAvailability}
+            onChange={(e) => set('foodAvailability', e.target.value)}
+          >
+            {FOOD_AVAILABILITY_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <div className="flex flex-wrap gap-4 text-sm">
           <label className="flex cursor-pointer items-start gap-2">
             <input
@@ -280,10 +296,6 @@ export default function AdminPGFormPage() {
                 Electricity / current charges are covered in the monthly rent.
               </span>
             </span>
-          </label>
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={form.foodAvailable} onChange={(e) => set('foodAvailable', e.target.checked)} />
-            Food available
           </label>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={form.featured} onChange={(e) => set('featured', e.target.checked)} />

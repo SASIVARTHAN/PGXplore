@@ -2,18 +2,29 @@ import { Link } from 'react-router-dom'
 import AdminDataTable from '../../components/admin/AdminDataTable'
 import { useToast } from '../../components/Toast'
 import { useAdmin } from '../../contexts/AdminContext'
+import { useAuth } from '../../contexts/AuthContext'
 import { formatCurrentBillIncluded, formatNoticePeriod } from '../../utils/formatPolicy'
 import { getSharingLabel, sharingToEntries } from '../../utils/sharingTypes'
 import { getStartingRent } from '../../utils/vacancy'
 
 export default function AdminPGListPage() {
-  const { state, deletePG } = useAdmin()
+  const { state, requestPGDeletion, getPendingDeletionRequest } = useAdmin()
+  const { session, canRequestPGDeletion } = useAuth()
   const { showToast } = useToast()
 
-  const handleDelete = (pg) => {
-    if (!window.confirm(`Delete ${pg.name}?`)) return
-    deletePG(pg.id)
-    showToast('PG deleted.')
+  const handleRequestDeletion = (pg) => {
+    if (getPendingDeletionRequest(pg.id)) {
+      showToast('A deletion request is already pending for this PG.', 'error')
+      return
+    }
+    const reason = window.prompt(`Request deletion of "${pg.name}".\nOptional reason for the reviewer:`, '')
+    if (reason === null) return
+    const result = requestPGDeletion({ pgId: pg.id, reason, requestedBy: session })
+    if (!result.ok) {
+      showToast(result.message, 'error')
+      return
+    }
+    showToast('Deletion request submitted. The PG stays active until a reviewer approves it.')
   }
 
   const columns = [
@@ -55,26 +66,37 @@ export default function AdminPGListPage() {
     {
       key: 'status',
       label: 'Availability',
-      render: (row) => (
-        <span className="admin-badge admin-badge--approved">{row.availabilityStatus || 'active'}</span>
-      ),
+      render: (row) =>
+        getPendingDeletionRequest(row.id) ? (
+          <span className="admin-badge admin-badge--pending">Deletion pending</span>
+        ) : (
+          <span className="admin-badge admin-badge--approved">{row.availabilityStatus || 'active'}</span>
+        ),
     },
     {
       key: 'actions',
       label: 'Actions',
-      render: (row) => (
-        <div className="flex flex-wrap gap-2">
-          <Link to={`/pg/${row.id}`} className="text-xs text-brand-emphasis hover:underline">
-            View
-          </Link>
-          <Link to={`/admin/pgs/${row.id}/edit`} className="text-xs text-brand-emphasis hover:underline">
-            Edit
-          </Link>
-          <button type="button" onClick={() => handleDelete(row)} className="text-xs text-rose-600">
-            Delete
-          </button>
-        </div>
-      ),
+      render: (row) => {
+        const pending = getPendingDeletionRequest(row.id)
+        return (
+          <div className="flex flex-wrap gap-2">
+            <Link to={`/pg/${row.id}`} className="text-xs text-brand-emphasis hover:underline">
+              View
+            </Link>
+            <Link to={`/admin/pgs/${row.id}/edit`} className="text-xs text-brand-emphasis hover:underline">
+              Edit
+            </Link>
+            {canRequestPGDeletion &&
+              (pending ? (
+                <span className="text-xs text-amber-600 dark:text-amber-400">Awaiting review</span>
+              ) : (
+                <button type="button" onClick={() => handleRequestDeletion(row)} className="text-xs text-rose-600">
+                  Request deletion
+                </button>
+              ))}
+          </div>
+        )
+      },
     },
   ]
 
@@ -87,7 +109,7 @@ export default function AdminPGListPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted">Add, edit, delete PGs. Upload images, amenities, maps location, rent & policies.</p>
+        <p className="text-sm text-muted">Add and edit PGs. Deletion needs reviewer approval — the PG stays active until then.</p>
         <Link to="/admin/pgs/new" className="btn-primary">
           + Add New PG
         </Link>

@@ -1,4 +1,5 @@
 import { pgListings } from '../data/pgData'
+import { staffAccounts } from '../utils/auth'
 import { roomTypeFromSharingId } from '../utils/sharingTypes'
 
 export const ROOM_TYPES = ['Single', 'Double', 'Triple', 'Four', 'Five', 'Dormitory']
@@ -54,10 +55,11 @@ export function createSeedState(listings = pgListings) {
     pgs: listings.map((pg) => ({ ...pg })),
     rooms,
     users: [
-      { id: 'u1', name: 'Ananya R', email: 'ananya@email.com', phone: '+91 98765 43210', status: 'active', joinedAt: '2026-03-01T10:00:00.000Z' },
-      { id: 'u2', name: 'Karthik M', email: 'karthik@email.com', phone: '+91 91234 56789', status: 'active', joinedAt: '2026-04-10T10:00:00.000Z' },
-      { id: 'u3', name: 'Priya S', email: 'priya@email.com', phone: '+91 99887 76655', status: 'blocked', joinedAt: '2026-02-15T10:00:00.000Z' },
-      { id: 'u4', name: 'Rahul V', email: 'rahul@email.com', phone: '+91 90001 22334', status: 'active', joinedAt: '2026-05-01T10:00:00.000Z' },
+      ...staffAccounts(),
+      { id: 'u1', name: 'Ananya R', email: 'ananya@email.com', phone: '+91 98765 43210', status: 'active', role: 'normal', joinedAt: '2026-03-01T10:00:00.000Z' },
+      { id: 'u2', name: 'Karthik M', email: 'karthik@email.com', phone: '+91 91234 56789', status: 'active', role: 'normal', joinedAt: '2026-04-10T10:00:00.000Z' },
+      { id: 'u3', name: 'Priya S', email: 'priya@email.com', phone: '+91 99887 76655', status: 'blocked', role: 'normal', joinedAt: '2026-02-15T10:00:00.000Z' },
+      { id: 'u4', name: 'Rahul V', email: 'rahul@email.com', phone: '+91 90001 22334', status: 'active', role: 'normal', joinedAt: '2026-05-01T10:00:00.000Z' },
     ],
     bookings: [
       { id: 'b1', userId: 'u1', userName: 'Ananya R', pgId: 1, pgName: listings[0]?.name, roomType: 'Double', status: 'pending', amount: 6500, checkIn: '2026-06-15', checkOut: '2026-12-15', createdAt: '2026-05-28T09:00:00.000Z' },
@@ -76,6 +78,7 @@ export function createSeedState(listings = pgListings) {
       { id: 'a3', action: 'User blocked', detail: 'Priya S account suspended', at: '2026-05-25T10:00:00.000Z' },
       { id: 'a4', action: 'Check-in', detail: 'Rahul V checked in at Sunrise Co-Living', at: '2026-05-20T11:30:00.000Z' },
     ],
+    deletionRequests: [],
     deletedReviewIds: [],
     stats: { totalBeds, occupiedBeds },
   }

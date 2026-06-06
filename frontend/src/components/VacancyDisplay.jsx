@@ -22,9 +22,6 @@ export default function VacancyDisplay({ sharing }) {
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-lg font-semibold text-main">Room availability & pricing</h3>
-        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
-          Live vacancy · Coming soon
-        </span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((row) => (
@@ -34,12 +31,8 @@ export default function VacancyDisplay({ sharing }) {
               {row.price != null ? `₹${row.price.toLocaleString('en-IN')}` : '—'}
               <span className="text-sm font-normal text-muted"> / month</span>
             </p>
-            <p className="mt-2 text-xs text-muted">
-              {row.totalBeds != null ? `${row.totalBeds} beds · ` : ''}
-              {row.vacancies ?? 0} vacancies listed
-            </p>
-            <p className="mt-2 min-h-5 text-sm font-medium text-muted invisible" aria-hidden>
-              &nbsp;
+            <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-300">
+              Beds available · Feature coming soon
             </p>
           </div>
         ))}

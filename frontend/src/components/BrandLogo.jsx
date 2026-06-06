@@ -10,9 +10,13 @@ export default function BrandLogo() {
       onClick={() => {
         if (onHome) window.scrollTo({ top: 0, behavior: 'smooth' })
       }}
-      className="relative z-50 shrink-0 text-xl font-bold text-brand hover:opacity-90"
+      className="relative z-50 flex shrink-0 items-center gap-2 hover:opacity-90"
+      aria-label="PGXplore home"
     >
-      PGXplore
+      <span className="overflow-hidden rounded-lg bg-white p-1 ring-1 ring-brand-100 dark:ring-white/10">
+        <img src="/pgxplore-logo.png" alt="PGXplore" className="h-7 w-auto sm:h-8" width="1024" height="683" />
+      </span>
+      <span className="sr-only">PGXplore</span>
     </Link>
   )
 }

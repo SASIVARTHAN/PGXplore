@@ -8,6 +8,7 @@ import {
   pushNotification,
 } from '../admin/adminStore'
 import { createSeedState, ROOM_TYPES } from '../admin/seedData'
+import { canModifyAccount } from '../utils/auth'
 import { getPGByIdFromListings, getSimilarPGsFromListings } from '../utils/listingsHelpers'
 
 const AdminContext = createContext(null)
@@ -76,7 +77,8 @@ export function AdminProvider({ children }) {
     [save],
   )
 
-  const deletePG = useCallback(
+  /** Permanently remove a PG (used only after a deletion request is approved). */
+  const removePGPermanently = useCallback(
     (id) => {
       save((prev) => {
         const next = { ...prev }
@@ -86,6 +88,95 @@ export function AdminProvider({ children }) {
         logActivity(next, 'PG deleted', pg?.name || `PG #${id}`)
         return next
       })
+    },
+    [save],
+  )
+
+  const getPendingDeletionRequest = useCallback(
+    (pgId) => (state.deletionRequests || []).find((r) => r.pgId === pgId && r.status === 'pending'),
+    [state.deletionRequests],
+  )
+
+  /** Admin submits a deletion request; PG stays active until a reviewer approves. */
+  const requestPGDeletion = useCallback(
+    ({ pgId, reason = '', requestedBy }) => {
+      let result = { ok: false, message: 'Could not submit request.' }
+      save((prev) => {
+        const next = { ...prev }
+        const pg = next.pgs.find((p) => p.id === pgId)
+        if (!pg) {
+          result = { ok: false, message: 'PG not found.' }
+          return prev
+        }
+        const requests = next.deletionRequests || []
+        if (requests.some((r) => r.pgId === pgId && r.status === 'pending')) {
+          result = { ok: false, message: 'A deletion request is already pending for this PG.' }
+          return prev
+        }
+        const entry = {
+          id: `dr-${Date.now()}`,
+          pgId,
+          pgName: pg.name,
+          reason: reason.trim(),
+          status: 'pending',
+          requestedById: requestedBy?.id || null,
+          requestedByName: requestedBy?.name || 'Admin',
+          requestedAt: new Date().toISOString(),
+          resolvedById: null,
+          resolvedByName: null,
+          resolvedAt: null,
+        }
+        next.deletionRequests = [entry, ...requests]
+        logActivity(next, 'Deletion requested', pg.name)
+        pushNotification(next, {
+          type: 'deletion',
+          title: 'PG deletion requested',
+          message: `${entry.requestedByName} requested removal of ${pg.name}`,
+        })
+        result = { ok: true }
+        return next
+      })
+      return result
+    },
+    [save],
+  )
+
+  /** Privileged/admin reviewer approves or rejects a deletion request. */
+  const resolveDeletionRequest = useCallback(
+    ({ requestId, approve, reviewer }) => {
+      let result = { ok: false, message: 'Could not update request.' }
+      save((prev) => {
+        const next = { ...prev }
+        const requests = next.deletionRequests || []
+        const request = requests.find((r) => r.id === requestId)
+        if (!request || request.status !== 'pending') {
+          result = { ok: false, message: 'Request is no longer pending.' }
+          return prev
+        }
+        const resolvedAt = new Date().toISOString()
+        next.deletionRequests = requests.map((r) =>
+          r.id === requestId
+            ? {
+                ...r,
+                status: approve ? 'approved' : 'rejected',
+                resolvedById: reviewer?.id || null,
+                resolvedByName: reviewer?.name || 'Reviewer',
+                resolvedAt,
+              }
+            : r,
+        )
+        if (approve) {
+          const pg = next.pgs.find((p) => p.id === request.pgId)
+          next.pgs = next.pgs.filter((p) => p.id !== request.pgId)
+          next.rooms = next.rooms.filter((r) => r.pgId !== request.pgId)
+          logActivity(next, 'Deletion approved', pg?.name || request.pgName)
+        } else {
+          logActivity(next, 'Deletion rejected', request.pgName)
+        }
+        result = { ok: true }
+        return next
+      })
+      return result
     },
     [save],
   )
@@ -138,15 +229,29 @@ export function AdminProvider({ children }) {
   )
 
   const updateUser = useCallback(
-    (id, updates) => {
+    (id, updates, actorRole) => {
+      let result = { ok: false, message: 'Could not update user.' }
       save((prev) => {
         const next = { ...prev }
+        const target = next.users.find((u) => u.id === id)
+        if (!target) {
+          result = { ok: false, message: 'User not found.' }
+          return prev
+        }
+        if (actorRole && !canModifyAccount(actorRole, target)) {
+          result = { ok: false, message: 'You do not have permission to modify this account.' }
+          return prev
+        }
         next.users = next.users.map((u) => (u.id === id ? { ...u, ...updates } : u))
         if (updates.status === 'blocked') {
-          logActivity(next, 'User blocked', next.users.find((u) => u.id === id)?.name)
+          logActivity(next, 'User blocked', target.name)
+        } else if (updates.status === 'active') {
+          logActivity(next, 'User unblocked', target.name)
         }
+        result = { ok: true }
         return next
       })
+      return result
     },
     [save],
   )
@@ -197,7 +302,10 @@ export function AdminProvider({ children }) {
     save,
     addPG,
     updatePG,
-    deletePG,
+    removePGPermanently,
+    requestPGDeletion,
+    resolveDeletionRequest,
+    getPendingDeletionRequest,
     addRoom,
     updateRoom,
     deleteRoom,

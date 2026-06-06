@@ -1,12 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import RequireRole from './admin/RequireRole'
 import AdminLayout from '../layouts/AdminLayout'
 import AdminLoginPage from '../pages/AdminLoginPage'
 import AdminAnalyticsPage from '../pages/admin/AdminAnalyticsPage'
-import AdminBookingsPage from '../pages/admin/AdminBookingsPage'
 import AdminNotificationsPage from '../pages/admin/AdminNotificationsPage'
 import AdminOverviewPage from '../pages/admin/AdminOverviewPage'
 import AdminPGFormPage from '../pages/admin/AdminPGFormPage'
 import AdminPGListPage from '../pages/admin/AdminPGListPage'
+import AdminRequestsPage from '../pages/admin/AdminRequestsPage'
 import AdminReviewsPage from '../pages/admin/AdminReviewsPage'
 import AdminRoomsPage from '../pages/admin/AdminRoomsPage'
 import AdminUsersPage from '../pages/admin/AdminUsersPage'
@@ -43,11 +44,26 @@ export default function AppRoutes() {
         <Route path="pgs/new" element={<AdminPGFormPage />} />
         <Route path="pgs/:id/edit" element={<AdminPGFormPage />} />
         <Route path="rooms" element={<AdminRoomsPage />} />
-        <Route path="bookings" element={<AdminBookingsPage />} />
-        <Route path="users" element={<AdminUsersPage />} />
+        <Route
+          path="requests"
+          element={
+            <RequireRole allow={(auth) => auth.canReviewRequests}>
+              <AdminRequestsPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="users"
+          element={
+            <RequireRole allow={(auth) => auth.canManageUsers}>
+              <AdminUsersPage />
+            </RequireRole>
+          }
+        />
         <Route path="reviews" element={<AdminReviewsPage />} />
         <Route path="analytics" element={<AdminAnalyticsPage />} />
         <Route path="notifications" element={<AdminNotificationsPage />} />
+        <Route path="bookings" element={<Navigate to="/admin" replace />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

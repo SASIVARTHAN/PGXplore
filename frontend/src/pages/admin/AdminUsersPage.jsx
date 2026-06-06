@@ -2,9 +2,22 @@ import { useState } from 'react'
 import AdminDataTable from '../../components/admin/AdminDataTable'
 import { useToast } from '../../components/Toast'
 import { useAdmin } from '../../contexts/AdminContext'
+import { useAuth } from '../../contexts/AuthContext'
+import { ROLE_LABELS, canModifyAccount } from '../../utils/auth'
+
+function RoleBadge({ role }) {
+  const tone =
+    role === 'admin'
+      ? 'bg-brand-100 text-brand-emphasis dark:bg-brand-950/50'
+      : role === 'privileged'
+      ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200'
+      : 'bg-card-muted text-muted'
+  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${tone}`}>{ROLE_LABELS[role] || 'Normal User'}</span>
+}
 
 export default function AdminUsersPage() {
   const { state, updateUser } = useAdmin()
+  const { role: actorRole } = useAuth()
   const { showToast } = useToast()
   const [selected, setSelected] = useState(null)
 
@@ -12,10 +25,20 @@ export default function AdminUsersPage() {
     ? state.bookings.filter((b) => b.userId === selected.id)
     : []
 
+  const handleToggleStatus = (user) => {
+    const next = user.status === 'active' ? 'blocked' : 'active'
+    const result = updateUser(user.id, { status: next }, actorRole)
+    if (!result.ok) {
+      showToast(result.message, 'error')
+      return
+    }
+    showToast(next === 'blocked' ? 'User blocked.' : 'User unblocked.')
+  }
+
   const columns = [
     { key: 'name', label: 'Name', render: (r) => <span className="font-medium text-main">{r.name}</span> },
     { key: 'email', label: 'Email' },
-    { key: 'phone', label: 'Phone' },
+    { key: 'role', label: 'Role', render: (r) => <RoleBadge role={r.role} /> },
     {
       key: 'status',
       label: 'Status',
@@ -26,31 +49,38 @@ export default function AdminUsersPage() {
     {
       key: 'actions',
       label: 'Actions',
-      render: (r) => (
-        <div className="flex gap-2">
-          <button type="button" className="text-xs text-brand-emphasis" onClick={() => setSelected(r)}>
-            Profile
-          </button>
-          <button
-            type="button"
-            className="text-xs"
-            onClick={() => {
-              const next = r.status === 'active' ? 'blocked' : 'active'
-              updateUser(r.id, { status: next })
-              showToast(next === 'blocked' ? 'User blocked.' : 'User unblocked.')
-            }}
-          >
-            {r.status === 'active' ? 'Block' : 'Unblock'}
-          </button>
-        </div>
-      ),
+      render: (r) => {
+        const editable = canModifyAccount(actorRole, r)
+        return (
+          <div className="flex gap-2">
+            <button type="button" className="text-xs text-brand-emphasis" onClick={() => setSelected(r)}>
+              Profile
+            </button>
+            {r.protected ? (
+              <span className="text-xs text-muted" title="Protected privileged account">🔒 Protected</span>
+            ) : (
+              <button
+                type="button"
+                className={`text-xs ${editable ? '' : 'cursor-not-allowed opacity-40'}`}
+                disabled={!editable}
+                onClick={() => editable && handleToggleStatus(r)}
+              >
+                {r.status === 'active' ? 'Block' : 'Unblock'}
+              </button>
+            )}
+          </div>
+        )
+      },
     },
   ]
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="lg:col-span-2">
-        <AdminDataTable columns={columns} rows={state.users} searchKeys={['name', 'email', 'phone']} searchPlaceholder="Search users…" />
+        <p className="mb-3 text-sm text-muted">
+          Admins manage accounts. Privileged accounts are protected and cannot be removed by normal users.
+        </p>
+        <AdminDataTable columns={columns} rows={state.users} searchKeys={['name', 'email', 'role']} searchPlaceholder="Search users…" />
       </div>
       <div className="admin-panel">
         <h2 className="admin-panel-title">User profile</h2>
@@ -59,6 +89,7 @@ export default function AdminUsersPage() {
             <p><span className="text-muted">Name:</span> {selected.name}</p>
             <p><span className="text-muted">Email:</span> {selected.email}</p>
             <p><span className="text-muted">Phone:</span> {selected.phone}</p>
+            <p className="flex items-center gap-2"><span className="text-muted">Role:</span> <RoleBadge role={selected.role} /></p>
             <p><span className="text-muted">Joined:</span> {new Date(selected.joinedAt).toLocaleDateString()}</p>
             <h3 className="pt-2 font-semibold text-main">Booking history</h3>
             {userBookings.length === 0 ? (

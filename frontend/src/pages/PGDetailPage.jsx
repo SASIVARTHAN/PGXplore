@@ -126,10 +126,10 @@ export default function PGDetailPage() {
     <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8">
       <BackButton fallback={browseReturnTo} label="Back" returnKey={id} />
 
-      <div className="mt-4 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+      <div className="mt-4 grid items-start gap-8 lg:grid-cols-[1.4fr_1fr]">
         <ImageGallery images={pg.images} name={pg.name} imageVersion={pg.updatedAt} />
 
-        <div className="space-y-5">
+        <div className="space-y-5 lg:sticky lg:top-20 lg:self-start">
           <div className="rounded-2xl border border-app bg-card p-5">
             <h1 className="text-2xl font-bold text-main md:text-3xl">{pg.name}</h1>
             <p className="mt-1 text-muted">{pg.area}</p>
@@ -150,7 +150,7 @@ export default function PGDetailPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <FoodTypeBadge foodAvailable={pg.foodAvailable} foodType={pg.foodType} />
+            <FoodTypeBadge pg={pg} />
             <CurrentBillBadge included={pg.currentBillIncluded} />
           </div>
 

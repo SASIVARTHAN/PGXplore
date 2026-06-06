@@ -1,17 +1,27 @@
 import { NavLink } from 'react-router-dom'
-
-const links = [
-  { to: '/admin', end: true, label: 'Dashboard', icon: '📊' },
-  { to: '/admin/pgs', label: 'PG Management', icon: '🏠' },
-  { to: '/admin/rooms', label: 'Room Management', icon: '🛏️' },
-  { to: '/admin/bookings', label: 'Bookings', icon: '📅' },
-  { to: '/admin/users', label: 'Users', icon: '👥' },
-  { to: '/admin/reviews', label: 'Reviews', icon: '⭐' },
-  { to: '/admin/analytics', label: 'Analytics', icon: '📈' },
-  { to: '/admin/notifications', label: 'Notifications', icon: '🔔' },
-]
+import { useAdmin } from '../../contexts/AdminContext'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function AdminSidebar({ open, onClose }) {
+  const { canReviewRequests, canManageUsers } = useAuth()
+  const { stats } = useAdmin()
+  const pendingRequests = stats.pendingDeletionRequests || 0
+
+  const links = [
+    { to: '/admin', end: true, label: 'Dashboard', icon: '📊' },
+    { to: '/admin/pgs', label: 'PG Management', icon: '🏠' },
+    { to: '/admin/rooms', label: 'Room Management', icon: '🛏️' },
+    canReviewRequests && {
+      to: '/admin/requests',
+      label: 'Requests',
+      icon: '📨',
+      badge: pendingRequests || null,
+    },
+    canManageUsers && { to: '/admin/users', label: 'Users', icon: '👥' },
+    { to: '/admin/reviews', label: 'Reviews', icon: '⭐' },
+    { to: '/admin/analytics', label: 'Analytics', icon: '📈' },
+  ].filter(Boolean)
+
   return (
     <>
       {open && (
@@ -39,7 +49,12 @@ export default function AdminSidebar({ open, onClose }) {
               }
             >
               <span aria-hidden>{link.icon}</span>
-              {link.label}
+              <span className="flex-1">{link.label}</span>
+              {link.badge ? (
+                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white">
+                  {link.badge}
+                </span>
+              ) : null}
             </NavLink>
           ))}
         </nav>

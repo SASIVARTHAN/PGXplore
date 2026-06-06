@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import AdminSidebar from '../components/admin/AdminSidebar'
 import AdminTopbar from '../components/admin/AdminTopbar'
+import { useAuth } from '../contexts/AuthContext'
+
 const titles = {
   '/admin': 'Dashboard Overview',
   '/admin/pgs': 'PG Management',
   '/admin/pgs/new': 'Add New PG',
   '/admin/rooms': 'Room Management',
-  '/admin/bookings': 'Booking Management',
+  '/admin/requests': 'Deletion Requests',
   '/admin/users': 'User Management',
   '/admin/reviews': 'Reviews & Ratings',
   '/admin/analytics': 'Revenue Analytics',
@@ -18,10 +20,10 @@ function AdminShell() {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const isAdmin = sessionStorage.getItem('pgxplore_admin') === 'true'
+  const { session, roleLabel, canAccessAdminPanel, logout } = useAuth()
 
-  if (!isAdmin) {
-    return <Navigate to="/admin-login" replace />
+  if (!session || !canAccessAdminPanel) {
+    return <Navigate to="/admin-login" replace state={{ from: location.pathname }} />
   }
 
   const title =
@@ -30,7 +32,7 @@ function AdminShell() {
       : titles[location.pathname] || 'Admin'
 
   const handleLogout = () => {
-    sessionStorage.removeItem('pgxplore_admin')
+    logout()
     navigate('/', { replace: true })
   }
 
@@ -40,7 +42,9 @@ function AdminShell() {
       <div className="admin-main">
         <AdminTopbar title={title} onMenuClick={() => setSidebarOpen(true)} />
         <div className="admin-main__toolbar">
-          <span className="text-sm text-muted">Signed in as admin</span>
+          <span className="text-sm text-muted">
+            Signed in as {session.name} · {roleLabel}
+          </span>
           <button type="button" onClick={handleLogout} className="btn-secondary text-sm">
             Logout
           </button>
