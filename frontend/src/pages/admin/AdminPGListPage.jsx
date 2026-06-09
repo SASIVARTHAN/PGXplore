@@ -80,7 +80,7 @@ export default function AdminPGListPage() {
         const pending = getPendingDeletionRequest(row.id)
         return (
           <div className="flex flex-wrap gap-2">
-            <Link to={`/pg/${row.id}`} className="action-btn action-btn--view">
+            <Link to={`/admin/pgs/${row.id}`} className="action-btn action-btn--view">
               View
             </Link>
             <Link to={`/admin/pgs/${row.id}/edit`} className="action-btn action-btn--edit">

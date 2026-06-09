@@ -29,6 +29,8 @@ function AdminShell() {
   const title =
     location.pathname.includes('/edit')
       ? 'Edit PG Details'
+      : /^\/admin\/pgs\/\d+$/.test(location.pathname)
+      ? 'PG Details'
       : titles[location.pathname] || 'Admin'
 
   const handleLogout = () => {

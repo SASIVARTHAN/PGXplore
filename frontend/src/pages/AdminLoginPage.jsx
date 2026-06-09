@@ -12,8 +12,8 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  if (session) {
-    return <Navigate to={canAccessAdminPanel ? '/admin' : '/home'} replace />
+  if (session && canAccessAdminPanel) {
+    return <Navigate to="/admin" replace />
   }
 
   const handleSubmit = (e) => {

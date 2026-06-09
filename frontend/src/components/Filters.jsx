@@ -1,4 +1,6 @@
+import { FiX } from 'react-icons/fi'
 import { AREAS } from '../data/pgData'
+import { SHARING_TYPE_OPTIONS } from '../utils/sharingTypes'
 
 export default function Filters({
   filters,
@@ -19,13 +21,13 @@ export default function Filters({
         </p>
         <div className="flex flex-wrap gap-2">
           {filters.area && !hasOtherFilters && (
-            <button type="button" onClick={onReset} className="btn-secondary text-sm">
-              Clear area: {filters.area}
+            <button type="button" onClick={onReset} className="btn-secondary inline-flex items-center gap-1.5 text-sm">
+              <FiX aria-hidden /> Clear area: {filters.area}
             </button>
           )}
           {onClearAll && (hasOtherFilters || !filters.area) && hasActiveFilters && (
-            <button type="button" onClick={onClearAll} className="btn-secondary text-sm">
-              Clear all filters
+            <button type="button" onClick={onClearAll} className="btn-secondary inline-flex items-center gap-1.5 text-sm">
+              <FiX aria-hidden /> Clear all filters
             </button>
           )}
         </div>
@@ -55,6 +57,22 @@ export default function Filters({
             <option value="Boys">Boys</option>
             <option value="Girls">Girls</option>
             <option value="Co-living">Co-living</option>
+          </select>
+        </label>
+
+        <label className="text-sm">
+          <span className="mb-1 block font-medium text-main">Room Availability</span>
+          <select
+            value={filters.roomType || ''}
+            onChange={(e) => update('roomType', e.target.value)}
+            className="select-app"
+          >
+            <option value="">All Room Types</option>
+            {SHARING_TYPE_OPTIONS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </label>
 
@@ -107,8 +125,8 @@ export default function Filters({
       </div>
       {onReset && hasActiveFilters && (
         <div className="flex justify-end">
-          <button type="button" onClick={onReset} className="btn-secondary">
-            Clear all filters
+          <button type="button" onClick={onReset} className="btn-secondary inline-flex items-center gap-1.5">
+            <FiX aria-hidden /> Clear all filters
           </button>
         </div>
       )}

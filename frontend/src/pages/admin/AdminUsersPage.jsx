@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FiLock } from 'react-icons/fi'
 import AdminDataTable from '../../components/admin/AdminDataTable'
 import { useToast } from '../../components/Toast'
 import { useAdmin } from '../../contexts/AdminContext'
@@ -57,7 +58,7 @@ export default function AdminUsersPage() {
               Profile
             </button>
             {r.protected ? (
-              <span className="text-xs text-muted" title="Protected privileged account">🔒 Protected</span>
+              <span className="inline-flex items-center gap-1 text-xs text-muted" title="Protected privileged account"><FiLock aria-hidden /> Protected</span>
             ) : (
               <button
                 type="button"

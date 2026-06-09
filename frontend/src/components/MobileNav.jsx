@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { FiHome, FiSearch, FiHeart, FiUser } from 'react-icons/fi'
 
 export default function MobileNav() {
   const location = useLocation()
@@ -7,10 +8,10 @@ export default function MobileNav() {
   if (hideNav) return null
 
   const items = [
-    { to: '/home', label: 'Dashboard', icon: '🏠', match: (p) => p === '/home' },
-    { to: '/listings', label: 'Browse', icon: '🔍', match: (p) => p.startsWith('/listings') },
-    { to: '/saved', label: 'Saved', icon: '♡', match: (p) => p.startsWith('/saved') },
-    { to: '/', label: 'Login', icon: '👤', match: (p) => p === '/' },
+    { to: '/home', label: 'Dashboard', icon: <FiHome aria-hidden />, match: (p) => p === '/home' },
+    { to: '/listings', label: 'Browse', icon: <FiSearch aria-hidden />, match: (p) => p.startsWith('/listings') },
+    { to: '/saved', label: 'Saved', icon: <FiHeart aria-hidden />, match: (p) => p.startsWith('/saved') },
+    { to: '/', label: 'Login', icon: <FiUser aria-hidden />, match: (p) => p === '/' },
   ]
 
   return (

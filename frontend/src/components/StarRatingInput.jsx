@@ -1,3 +1,5 @@
+import { FaRegStar, FaStar } from 'react-icons/fa6'
+
 export default function StarRatingInput({ value, onChange, max = 5 }) {
   return (
     <div className="flex items-center gap-1" role="group" aria-label="Rating">
@@ -14,7 +16,7 @@ export default function StarRatingInput({ value, onChange, max = 5 }) {
             }`}
             aria-label={`${star} star${star > 1 ? 's' : ''}`}
           >
-            {filled ? '★' : '☆'}
+            {filled ? <FaStar aria-hidden /> : <FaRegStar aria-hidden />}
           </button>
         )
       })}

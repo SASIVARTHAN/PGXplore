@@ -1,5 +1,6 @@
 import { AREAS, pgListings } from '../data/pgData'
 import { isFoodServiceAvailable } from './foodAvailability'
+import { sharingToEntries } from './sharingTypes'
 import { getStartingRent } from './vacancy'
 
 /** Normalized area lookup (handles typos like thambaram → Tambaram) */
@@ -219,6 +220,11 @@ export function filterListingsBySearch(listings, rawQuery, uiFilters = {}) {
 
   if (uiFilters.area) list = list.filter((pg) => pg.area === uiFilters.area)
   if (uiFilters.gender) list = list.filter((pg) => pg.gender === uiFilters.gender)
+  if (uiFilters.roomType) {
+    list = list.filter((pg) =>
+      sharingToEntries(pg.sharing).some((entry) => entry.type === uiFilters.roomType),
+    )
+  }
   if (uiFilters.foodOnly) list = list.filter((pg) => isFoodServiceAvailable(pg))
   if (uiFilters.acOnly) list = list.filter((pg) => pg.amenities?.includes('AC'))
   if (uiFilters.availableOnly && uiFilters.getVacancySummary) {

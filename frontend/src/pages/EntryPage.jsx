@@ -1,21 +1,23 @@
 import { useNavigate } from 'react-router-dom'
+import { FiArrowRight, FiFeather, FiHome, FiLock, FiMapPin, FiShield, FiTool, FiZap } from 'react-icons/fi'
+import { HiSparkles } from 'react-icons/hi2'
 import ThemeToggle from '../components/ThemeToggle'
 import { useAuth } from '../contexts/AuthContext'
 
 const FEATURES = [
-  { icon: '🛡️', label: 'Verified listings' },
-  { icon: '📍', label: 'Across Chennai' },
-  { icon: '⚡', label: 'Live vacancy soon' },
+  { icon: <FiShield aria-hidden />, label: 'Verified listings' },
+  { icon: <FiMapPin aria-hidden />, label: 'Across Chennai' },
+  { icon: <FiZap aria-hidden />, label: 'Live vacancy soon' },
 ]
 
 const PARTICLES = [
-  { emoji: '🪶', left: '8%', top: '70%', size: '2rem', duration: '9s', delay: '0s' },
-  { emoji: '🏠', left: '18%', top: '40%', size: '1.5rem', duration: '11s', delay: '1.5s' },
-  { emoji: '✨', left: '30%', top: '80%', size: '1.25rem', duration: '7s', delay: '0.8s' },
-  { emoji: '📍', left: '72%', top: '75%', size: '1.5rem', duration: '10s', delay: '2s' },
-  { emoji: '🪶', left: '85%', top: '45%', size: '2.25rem', duration: '12s', delay: '0.4s' },
-  { emoji: '✨', left: '62%', top: '30%', size: '1rem', duration: '8s', delay: '2.6s' },
-  { emoji: '🏠', left: '90%', top: '82%', size: '1.4rem', duration: '13s', delay: '1.1s' },
+  { Icon: FiFeather, left: '8%', top: '70%', size: '2rem', duration: '9s', delay: '0s' },
+  { Icon: FiHome, left: '18%', top: '40%', size: '1.5rem', duration: '11s', delay: '1.5s' },
+  { Icon: HiSparkles, left: '30%', top: '80%', size: '1.25rem', duration: '7s', delay: '0.8s' },
+  { Icon: FiMapPin, left: '72%', top: '75%', size: '1.5rem', duration: '10s', delay: '2s' },
+  { Icon: FiFeather, left: '85%', top: '45%', size: '2.25rem', duration: '12s', delay: '0.4s' },
+  { Icon: HiSparkles, left: '62%', top: '30%', size: '1rem', duration: '8s', delay: '2.6s' },
+  { Icon: FiHome, left: '90%', top: '82%', size: '1.4rem', duration: '13s', delay: '1.1s' },
 ]
 
 export default function EntryPage() {
@@ -53,7 +55,7 @@ export default function EntryPage() {
             animationDelay: p.delay,
           }}
         >
-          {p.emoji}
+          <p.Icon />
         </span>
       ))}
 
@@ -98,7 +100,7 @@ export default function EntryPage() {
             style={{ animationDelay: '0.55s' }}
           >
             <span className="entry-option__icon bg-white/20" aria-hidden>
-              🏠
+              <FiHome />
             </span>
             <span className="flex-1">
               <span className="block text-base">Continue as User</span>
@@ -106,7 +108,7 @@ export default function EntryPage() {
                 Browse PG listings — no login required
               </span>
             </span>
-            <span aria-hidden className="entry-option__arrow text-lg">→</span>
+            <FiArrowRight aria-hidden className="entry-option__arrow text-lg" />
           </button>
 
           {isStaff ? (
@@ -117,7 +119,7 @@ export default function EntryPage() {
               style={{ animationDelay: '0.7s' }}
             >
               <span className="entry-option__icon bg-brand-100 dark:bg-white/10" aria-hidden>
-                🛠️
+                <FiTool />
               </span>
               <span className="flex-1">
                 <span className="block text-base">Back to Admin Panel</span>
@@ -125,7 +127,7 @@ export default function EntryPage() {
                   You&apos;re signed in as {session.name}
                 </span>
               </span>
-              <span aria-hidden className="entry-option__arrow text-lg">→</span>
+              <FiArrowRight aria-hidden className="entry-option__arrow text-lg" />
             </button>
           ) : (
             <button
@@ -135,7 +137,7 @@ export default function EntryPage() {
               style={{ animationDelay: '0.7s' }}
             >
               <span className="entry-option__icon bg-brand-100 dark:bg-white/10" aria-hidden>
-                🔐
+                <FiLock />
               </span>
               <span className="flex-1">
                 <span className="block text-base">Login</span>
@@ -143,7 +145,7 @@ export default function EntryPage() {
                   Admin &amp; privileged team access
                 </span>
               </span>
-              <span aria-hidden className="entry-option__arrow text-lg">→</span>
+              <FiArrowRight aria-hidden className="entry-option__arrow text-lg" />
             </button>
           )}
         </div>

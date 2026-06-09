@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { FaStar } from 'react-icons/fa6'
 import AdminDataTable from '../../components/admin/AdminDataTable'
 import AdminStatCard from '../../components/admin/AdminStatCard'
 import { useToast } from '../../components/Toast'
@@ -37,7 +38,15 @@ export default function AdminReviewsPage() {
   const columns = [
     { key: 'pgName', label: 'PG' },
     { key: 'name', label: 'Reviewer' },
-    { key: 'rating', label: 'Rating', render: (r) => `⭐ ${r.rating}` },
+    {
+      key: 'rating',
+      label: 'Rating',
+      render: (r) => (
+        <span className="inline-flex items-center gap-1">
+          <FaStar aria-hidden className="text-amber-500" /> {r.rating}
+        </span>
+      ),
+    },
     { key: 'text', label: 'Review', render: (r) => <span className="line-clamp-2 max-w-xs">{r.text}</span> },
     { key: 'source', label: 'Source' },
     {

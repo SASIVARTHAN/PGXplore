@@ -128,7 +128,7 @@ export default function SharingConfigEditor({ value, onChange, error }) {
                     type="number"
                     min="0"
                     className="input-app mt-1 w-full"
-                    placeholder="Leave blank — coming soon"
+                    placeholder="Leave blank — Coming Soon"
                     value={config.vacancies}
                     onChange={(e) => updateConfiguration(config.id, { vacancies: e.target.value })}
                   />

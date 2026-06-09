@@ -5,6 +5,7 @@ import AdminLoginPage from '../pages/AdminLoginPage'
 import AdminAnalyticsPage from '../pages/admin/AdminAnalyticsPage'
 import AdminNotificationsPage from '../pages/admin/AdminNotificationsPage'
 import AdminOverviewPage from '../pages/admin/AdminOverviewPage'
+import AdminPGDetailPage from '../pages/admin/AdminPGDetailPage'
 import AdminPGFormPage from '../pages/admin/AdminPGFormPage'
 import AdminPGListPage from '../pages/admin/AdminPGListPage'
 import AdminRequestsPage from '../pages/admin/AdminRequestsPage'
@@ -43,6 +44,7 @@ export default function AppRoutes() {
         <Route path="pgs" element={<AdminPGListPage />} />
         <Route path="pgs/new" element={<AdminPGFormPage />} />
         <Route path="pgs/:id/edit" element={<AdminPGFormPage />} />
+        <Route path="pgs/:id" element={<AdminPGDetailPage />} />
         <Route path="rooms" element={<AdminRoomsPage />} />
         <Route
           path="requests"

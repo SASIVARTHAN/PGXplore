@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { FiArrowLeft } from 'react-icons/fi'
 import { resolveBackTarget } from '../utils/navigation'
 
 export default function BackButton({ fallback = '/home', label = 'Back', to, returnKey }) {
@@ -16,7 +17,7 @@ export default function BackButton({ fallback = '/home', label = 'Back', to, ret
       onClick={handleBack}
       className="relative z-50 inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-sm font-medium text-brand-emphasis transition hover:text-brand-900 dark:hover:text-brand-300"
     >
-      ← {label}
+      <FiArrowLeft aria-hidden /> {label}
     </button>
   )
 }

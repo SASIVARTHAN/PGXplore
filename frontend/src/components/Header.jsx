@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { FiTool } from 'react-icons/fi'
 import { useAuth } from '../contexts/AuthContext'
 import BrandLogo from './BrandLogo'
 import ThemeToggle from './ThemeToggle'
@@ -42,7 +43,7 @@ export default function Header() {
             ))}
             {session && canAccessAdminPanel ? (
               <Link to="/admin" className="header-admin-link">
-                <span aria-hidden>🛠️</span>
+                <FiTool aria-hidden />
                 Admin Panel
               </Link>
             ) : (

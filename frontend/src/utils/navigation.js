@@ -90,6 +90,7 @@ export function hasActiveListingFilters(filters, query) {
     query?.trim() ||
       filters.area ||
       filters.gender ||
+      filters.roomType ||
       filters.foodOnly ||
       filters.acOnly ||
       filters.availableOnly ||

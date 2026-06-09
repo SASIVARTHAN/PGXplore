@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { FiArrowRight } from 'react-icons/fi'
 import BackButton from '../components/BackButton'
 import EmptyState from '../components/EmptyState'
 import Filters from '../components/Filters'
@@ -15,6 +16,7 @@ import { getStartingRent, getVacancySummary } from '../utils/vacancy'
 export const defaultFilters = {
   area: '',
   gender: '',
+  roomType: '',
   maxRent: 15000,
   sort: 'updated',
   foodOnly: false,
@@ -82,6 +84,7 @@ export default function ListingsPage() {
     let list = filterListingsBySearch(listings, query, {
       area: filters.area,
       gender: filters.gender,
+      roomType: filters.roomType,
       foodOnly: filters.foodOnly,
       acOnly: filters.acOnly,
       availableOnly: filters.availableOnly,
@@ -110,6 +113,7 @@ export default function ListingsPage() {
   const hasOtherFilters = Boolean(
     query.trim() ||
       filters.gender ||
+      filters.roomType ||
       filters.foodOnly ||
       filters.acOnly ||
       filters.availableOnly ||
@@ -150,9 +154,9 @@ export default function ListingsPage() {
           <button
             type="button"
             onClick={() => setSearchParams({ area: filters.area, full: '1' }, { replace: true })}
-            className="text-sm font-medium text-brand-emphasis hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-emphasis hover:underline"
           >
-            Show all filter options →
+            Show all filter options <FiArrowRight aria-hidden />
           </button>
         )}
       </div>

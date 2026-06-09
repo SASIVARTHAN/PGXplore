@@ -1,7 +1,14 @@
+import { FiBell, FiCalendar, FiHome } from 'react-icons/fi'
+import { FaStar } from 'react-icons/fa6'
 import { useAdmin } from '../../contexts/AdminContext'
 import { useToast } from '../../components/Toast'
 
-const typeIcon = { booking: '📅', review: '⭐', vacancy: '🏠' }
+const typeIcon = { booking: FiCalendar, review: FaStar, vacancy: FiHome }
+
+function NotificationIcon({ type }) {
+  const Icon = typeIcon[type] || FiBell
+  return <Icon aria-hidden />
+}
 
 export default function AdminNotificationsPage() {
   const { state, markNotificationRead, markAllNotificationsRead } = useAdmin()
@@ -42,7 +49,7 @@ export default function AdminNotificationsPage() {
                   key={n.id}
                   className={`flex gap-3 rounded-xl border border-app p-4 ${n.read ? 'bg-card-muted opacity-70' : 'bg-card'}`}
                 >
-                  <span className="text-xl">{typeIcon[n.type] || '🔔'}</span>
+                  <span className="text-xl"><NotificationIcon type={n.type} /></span>
                   <div className="flex-1">
                     <p className="font-medium text-main">{n.title}</p>
                     <p className="text-sm text-muted">{n.message}</p>

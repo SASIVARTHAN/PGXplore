@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import {
+  FiArrowRight,
+  FiCheck,
+  FiCheckCircle,
+  FiClock,
+  FiDollarSign,
+  FiMapPin,
+  FiRefreshCw,
+} from 'react-icons/fi'
 import AutocompleteSearchBar from '../components/AutocompleteSearchBar'
 import HeroFeatureRotator from '../components/HeroFeatureRotator'
 import { useToast } from '../components/Toast'
 import { createNavState, saveReturnPath } from '../utils/navigation'
 import { AREAS } from '../data/pgData'
 import { useListings } from '../contexts/AdminContext'
-import { formatUpdatedAt } from '../utils/vacancy'
+import { getRecentIds } from '../utils/storage'
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -14,8 +23,8 @@ export default function HomePage() {
   const { listings } = useListings()
   const [query, setQuery] = useState('')
 
-  const recent = useMemo(
-    () => [...listings].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 4),
+  const recentlyViewed = useMemo(
+    () => getRecentIds().map((id) => listings.find((pg) => pg.id === id)).filter(Boolean).slice(0, 4),
     [listings],
   )
   const recentlyAdded = useMemo(
@@ -24,10 +33,10 @@ export default function HomePage() {
   )
 
   const heroFeatures = [
-    { icon: '⏳', text: 'Live Vacancy coming soon' },
-    { icon: '📍', text: 'Google Maps verified' },
-    { icon: '🔄', text: 'Realtime updates' },
-    { icon: '✓', text: 'Verified PGs' },
+    { icon: <FiClock aria-hidden />, text: 'Live availability · Coming Soon' },
+    { icon: <FiMapPin aria-hidden />, text: 'Google Maps verified' },
+    { icon: <FiRefreshCw aria-hidden />, text: 'Realtime updates' },
+    { icon: <FiCheck aria-hidden />, text: 'Verified PGs' },
   ]
 
   return (
@@ -50,7 +59,9 @@ export default function HomePage() {
               />
             </div>
             <button type="button" onClick={() => navigate('/listings')} className="hero-cta-outline">
-              Browse All PGs →
+              <span className="inline-flex items-center gap-1.5">
+                Browse All PGs <FiArrowRight aria-hidden />
+              </span>
             </button>
           </div>
 
@@ -78,39 +89,39 @@ export default function HomePage() {
             <Link
               key={area}
               to={`/listings?area=${encodeURIComponent(area)}`}
-              className="rounded-full border border-app bg-card px-5 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition hover:border-brand-500 hover:text-brand-900 dark:text-stone-100 dark:hover:border-brand-500 dark:hover:text-brand-400"
+              className="inline-flex items-center gap-1.5 rounded-full border border-app bg-card px-5 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition hover:border-brand-500 hover:text-brand-900 dark:text-stone-100 dark:hover:border-brand-500 dark:hover:text-brand-400"
             >
-              📍 {area}
+              <FiMapPin aria-hidden className="text-brand-emphasis" /> {area}
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="mt-12 grid gap-8 lg:grid-cols-2">
-        <div>
-          <h2 className="mb-4 text-2xl font-bold text-main">Recently Updated</h2>
-          <div className="space-y-3">
-            {recent.map((pg) => (
-              <Link
-                key={pg.id}
-                to={`/pg/${pg.id}`}
-                state={createNavState('/home')}
-                onClick={() => saveReturnPath(pg.id, '/home')}
-                className="card-hover flex items-center justify-between rounded-xl border border-app bg-card p-4"
-              >
-                <div>
-                  <p className="font-medium text-main">{pg.name}</p>
-                  <p className="text-sm text-muted">
-                    {pg.area} · {pg.gender}
-                  </p>
-                </div>
-                <span className="shrink-0 text-xs font-medium text-emerald-800 dark:text-emerald-400">
-                  {formatUpdatedAt(pg.updatedAt)}
-                </span>
-              </Link>
-            ))}
+      <section className={`mt-12 grid gap-8 ${recentlyViewed.length > 0 ? 'lg:grid-cols-2' : ''}`}>
+        {recentlyViewed.length > 0 && (
+          <div>
+            <h2 className="mb-4 text-2xl font-bold text-main">Recently Viewed PGs</h2>
+            <div className="space-y-3">
+              {recentlyViewed.map((pg) => (
+                <Link
+                  key={pg.id}
+                  to={`/pg/${pg.id}`}
+                  state={createNavState('/home')}
+                  onClick={() => saveReturnPath(pg.id, '/home')}
+                  className="card-hover flex items-center justify-between rounded-xl border border-app bg-card p-4"
+                >
+                  <div>
+                    <p className="font-medium text-main">{pg.name}</p>
+                    <p className="text-sm text-muted">
+                      {pg.area} · {pg.gender}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-xs font-medium text-brand-emphasis">View again →</span>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div>
           <h2 className="mb-4 text-2xl font-bold text-main">Recently Added</h2>
@@ -140,12 +151,12 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold text-main">Why Choose PGXplore?</h2>
         <div className="mt-6 grid gap-6 md:grid-cols-3">
           {[
-            { icon: '🟢', title: 'Real Vacancies', text: 'See availability by sharing type — entire room or individual beds.' },
-            { icon: '💰', title: 'Transparent Pricing', text: 'Rent, deposit, and food details shown upfront. No surprises.' },
-            { icon: '📍', title: 'Local Focus', text: 'Built for Chromepet, Tambaram, Perungalathur, Guduvanchery & more.' },
+            { icon: <FiCheckCircle aria-hidden className="text-emerald-500" />, title: 'Real Vacancies', text: 'See availability by sharing type — entire room or individual beds.' },
+            { icon: <FiDollarSign aria-hidden className="text-brand-emphasis" />, title: 'Transparent Pricing', text: 'Rent, deposit, and food details shown upfront. No surprises.' },
+            { icon: <FiMapPin aria-hidden className="text-brand-emphasis" />, title: 'Local Focus', text: 'Built for Chromepet, Tambaram, Perungalathur, Guduvanchery & more.' },
           ].map((item) => (
             <div key={item.title} className="rounded-xl bg-card-muted p-5">
-              <span className="text-2xl">{item.icon}</span>
+              <span className="flex text-2xl">{item.icon}</span>
               <p className="mt-2 font-semibold text-main">{item.title}</p>
               <p className="mt-1 text-sm text-muted">{item.text}</p>
             </div>

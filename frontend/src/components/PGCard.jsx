@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom'
+import { FiZap } from 'react-icons/fi'
+import { FaStar } from 'react-icons/fa6'
 import { useReturnPath } from '../hooks/useReturnPath'
 import { getFoodAvailabilityLabel } from '../utils/foodAvailability'
 import { createNavState, saveReturnPath } from '../utils/navigation'
@@ -45,8 +47,8 @@ export default function PGCard({ pg, returnTo }) {
               {pg.area} · {pg.gender}
             </p>
           </div>
-          <span className="shrink-0 rounded-lg bg-amber-50 px-2 py-1 text-sm font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
-            ⭐ {pg.rating}
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 text-sm font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
+            <FaStar aria-hidden /> {pg.rating}
           </span>
         </div>
 
@@ -54,13 +56,23 @@ export default function PGCard({ pg, returnTo }) {
           ₹{rent.toLocaleString('en-IN')}/month
         </p>
 
-        <p className="text-sm text-muted">Beds available · Feature coming soon</p>
+        <p className="text-sm text-muted">Live availability · Coming Soon</p>
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2 text-xs text-muted">
-          <span className="truncate">
+          <span className="inline-flex items-center gap-1 truncate">
             {getFoodAvailabilityLabel(pg)}
-            {pg.currentBillIncluded === true && ' · ⚡ Bill included'}
-            {pg.currentBillIncluded === false && ' · ⚡ Bill extra'}
+            {pg.currentBillIncluded === true && (
+              <>
+                {' · '}
+                <FiZap aria-hidden className="shrink-0" /> Bill included
+              </>
+            )}
+            {pg.currentBillIncluded === false && (
+              <>
+                {' · '}
+                <FiZap aria-hidden className="shrink-0" /> Bill extra
+              </>
+            )}
           </span>
           <span className="shrink-0">{formatUpdatedAt(pg.updatedAt)}</span>
         </div>

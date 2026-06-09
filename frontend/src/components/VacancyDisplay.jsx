@@ -32,7 +32,7 @@ export default function VacancyDisplay({ sharing }) {
               <span className="text-sm font-normal text-muted"> / month</span>
             </p>
             <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-300">
-              Beds available · Feature coming soon
+              Live availability · Coming Soon
             </p>
           </div>
         ))}

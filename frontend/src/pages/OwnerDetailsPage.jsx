@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
+import { FiCheck } from 'react-icons/fi'
 import BackButton from '../components/BackButton'
 import PageShell from '../components/PageShell'
 import { ownerProgramInfo } from '../data/companyData'
@@ -46,8 +47,8 @@ export default function OwnerDetailsPage() {
           <p className="leading-relaxed text-muted">{ownerProgramInfo.description}</p>
           <ul className="mt-6 space-y-3">
             {ownerProgramInfo.benefits.map((benefit) => (
-              <li key={benefit} className="flex gap-2 text-sm text-main">
-                <span className="text-brand-emphasis">✓</span>
+              <li key={benefit} className="flex items-start gap-2 text-sm text-main">
+                <FiCheck aria-hidden className="mt-0.5 shrink-0 text-brand-emphasis" />
                 {benefit}
               </li>
             ))}

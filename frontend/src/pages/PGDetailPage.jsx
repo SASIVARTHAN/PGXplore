@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { FiPhone, FiShare2 } from 'react-icons/fi'
+import { FaHeart, FaRegHeart, FaStar } from 'react-icons/fa6'
 import AmenityGrid from '../components/AmenityGrid'
 import BackButton from '../components/BackButton'
 import EmptyState from '../components/EmptyState'
@@ -76,17 +78,25 @@ export default function PGDetailPage() {
   }
 
   const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: pg.name,
-          text: `Check out ${pg.name}`,
-          url: window.location.href,
-        })
-      } else {
-        await navigator.clipboard.writeText(window.location.href)
-        showToast('Link copied to clipboard!')
+    const shareUrl = window.location.href
+    const shareData = {
+      title: pg.name,
+      text: `Check out ${pg.name} on PGXplore`,
+      url: shareUrl,
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+        return
+      } catch (err) {
+        if (err?.name === 'AbortError') return
       }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      showToast('Link copied to clipboard!')
     } catch {
       showToast('Could not share this listing', 'error')
     }
@@ -134,8 +144,8 @@ export default function PGDetailPage() {
             <h1 className="text-2xl font-bold text-main md:text-3xl">{pg.name}</h1>
             <p className="mt-1 text-muted">{pg.area}</p>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-              <span className="rounded-lg bg-amber-100 px-2 py-1 font-medium text-amber-900 dark:bg-amber-950/50 dark:text-amber-300">
-                ⭐ {averageRating?.toFixed(1) ?? pg.rating}
+              <span className="inline-flex items-center gap-1 rounded-lg bg-amber-100 px-2 py-1 font-medium text-amber-900 dark:bg-amber-950/50 dark:text-amber-300">
+                <FaStar aria-hidden /> {averageRating?.toFixed(1) ?? pg.rating}
               </span>
               <span className="rounded-lg bg-card-muted px-2 py-1 text-main">{pg.gender}</span>
             </div>
@@ -164,9 +174,9 @@ export default function PGDetailPage() {
                 </div>
                 <a
                   href={`tel:${pg.owner.phone.replace(/\s/g, '')}`}
-                  className="btn-primary"
+                  className="btn-primary inline-flex items-center justify-center gap-2"
                 >
-                  📞 Call Now
+                  <FiPhone aria-hidden /> Call Now
                 </a>
               </div>
             </div>
@@ -178,14 +188,26 @@ export default function PGDetailPage() {
               onClick={handleSave}
               className={
                 saved
-                  ? 'btn-danger flex-1'
-                  : 'btn-primary flex-1'
+                  ? 'btn-danger flex-1 inline-flex items-center justify-center gap-2'
+                  : 'btn-primary flex-1 inline-flex items-center justify-center gap-2'
               }
             >
-              {saved ? '♥ Saved' : '♡ Save PG'}
+              {saved ? (
+                <>
+                  <FaHeart aria-hidden /> Saved
+                </>
+              ) : (
+                <>
+                  <FaRegHeart aria-hidden /> Save PG
+                </>
+              )}
             </button>
-            <button type="button" onClick={handleShare} className="btn-secondary flex-1">
-              Share
+            <button
+              type="button"
+              onClick={handleShare}
+              className="btn-secondary flex-1 inline-flex items-center justify-center gap-2"
+            >
+              <FiShare2 aria-hidden /> Share
             </button>
             <button type="button" onClick={() => setShowReport(true)} className="btn-warning flex-1">
               Report

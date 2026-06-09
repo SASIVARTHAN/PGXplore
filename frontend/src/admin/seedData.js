@@ -69,7 +69,7 @@ export function createSeedState(listings = pgListings) {
     ],
     notifications: [
       { id: 'n1', type: 'booking', title: 'New booking request', message: 'Ananya R requested Double sharing at Sri Balaji Ladies PG', read: false, at: '2026-05-28T09:00:00.000Z' },
-      { id: 'n2', type: 'review', title: 'New review', message: '5★ review on Metro Stay Boys PG', read: false, at: '2026-05-27T16:00:00.000Z' },
+      { id: 'n2', type: 'review', title: 'New review', message: '5-star review on Metro Stay Boys PG', read: false, at: '2026-05-27T16:00:00.000Z' },
       { id: 'n3', type: 'vacancy', title: 'Low vacancy alert', message: 'Sunrise Co-Living has no triple sharing beds left', read: true, at: '2026-05-26T08:00:00.000Z' },
     ],
     activities: [
