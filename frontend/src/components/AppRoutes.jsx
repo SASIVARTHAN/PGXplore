@@ -21,6 +21,9 @@ import PrivacyPolicyPage from '../pages/PrivacyPolicyPage'
 import OwnerDetailsPage from '../pages/OwnerDetailsPage'
 import PGDetailPage from '../pages/PGDetailPage'
 import SavedPage from '../pages/SavedPage'
+import UserAccountPage from '../pages/UserAccountPage'
+import UserLoginPage from '../pages/UserLoginPage'
+import UserRegisterPage from '../pages/UserRegisterPage'
 import TermsPage from '../pages/TermsPage'
 
 export default function AppRoutes() {
@@ -30,6 +33,9 @@ export default function AppRoutes() {
       <Route path="/home" element={<HomePage />} />
       <Route path="/listings" element={<ListingsPage />} />
       <Route path="/pg/:id" element={<PGDetailPage />} />
+      <Route path="/login" element={<UserLoginPage />} />
+      <Route path="/register" element={<UserRegisterPage />} />
+      <Route path="/account" element={<UserAccountPage />} />
       <Route path="/saved" element={<SavedPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/help-center" element={<HelpCenterPage />} />

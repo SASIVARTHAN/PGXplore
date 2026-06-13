@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   FiArrowRight,
@@ -14,18 +14,29 @@ import HeroFeatureRotator from '../components/HeroFeatureRotator'
 import { useToast } from '../components/Toast'
 import { createNavState, saveReturnPath } from '../utils/navigation'
 import { AREAS } from '../data/pgData'
+import { useAuth } from '../contexts/AuthContext'
 import { useListings } from '../contexts/AdminContext'
-import { getRecentIds } from '../utils/storage'
+import { getRecentIds, syncRecentFromApi } from '../utils/storage'
 
 export default function HomePage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const { listings } = useListings()
+  const { session, isAccountUser } = useAuth()
+  const { listings, listingsLoading } = useListings()
   const [query, setQuery] = useState('')
+  const [recentIds, setRecentIds] = useState(() => (isAccountUser ? getRecentIds(session?.id) : []))
+
+  useEffect(() => {
+    if (!isAccountUser) {
+      setRecentIds([])
+      return
+    }
+    syncRecentFromApi(session?.id).then(setRecentIds)
+  }, [isAccountUser, session?.id])
 
   const recentlyViewed = useMemo(
-    () => getRecentIds().map((id) => listings.find((pg) => pg.id === id)).filter(Boolean).slice(0, 4),
-    [listings],
+    () => recentIds.map((id) => listings.find((pg) => pg.id === id)).filter(Boolean).slice(0, 4),
+    [recentIds, listings],
   )
   const recentlyAdded = useMemo(
     () => [...listings].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3),
@@ -71,7 +82,7 @@ export default function HomePage() {
 
       <section className="mt-10 grid gap-4 sm:grid-cols-3">
         {[
-          { label: `${listings.length}+ Listings`, sub: 'Across South Chennai' },
+          { label: listingsLoading ? 'Loading…' : `${listings.length}+ Listings`, sub: 'Across South Chennai' },
           { label: '500+ Beds', sub: 'Tracked availability' },
           { label: 'Daily Updates', sub: 'Fresh vacancy data' },
         ].map((stat) => (

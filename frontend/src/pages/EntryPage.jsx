@@ -111,10 +111,10 @@ export default function EntryPage() {
             <FiArrowRight aria-hidden className="entry-option__arrow text-lg" />
           </button>
 
-          {isStaff ? (
+          {session ? (
             <button
               type="button"
-              onClick={() => navigate('/admin')}
+              onClick={() => navigate(isStaff ? '/admin' : '/account')}
               className="entry-option entry-stagger border border-brand-200 bg-white text-brand-900 hover:border-brand-300 hover:bg-brand-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
               style={{ animationDelay: '0.7s' }}
             >
@@ -122,31 +122,63 @@ export default function EntryPage() {
                 <FiTool />
               </span>
               <span className="flex-1">
-                <span className="block text-base">Back to Admin Panel</span>
+                <span className="block text-base">{isStaff ? 'Back to Admin Panel' : 'My account'}</span>
                 <span className="block text-xs font-normal text-muted">
-                  You&apos;re signed in as {session.name}
+                  Signed in as {session.name}
                 </span>
               </span>
               <FiArrowRight aria-hidden className="entry-option__arrow text-lg" />
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={() => navigate('/admin-login')}
-              className="entry-option entry-stagger border border-brand-200 bg-white text-brand-900 hover:border-brand-300 hover:bg-brand-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-              style={{ animationDelay: '0.7s' }}
-            >
-              <span className="entry-option__icon bg-brand-100 dark:bg-white/10" aria-hidden>
-                <FiLock />
-              </span>
-              <span className="flex-1">
-                <span className="block text-base">Login</span>
-                <span className="block text-xs font-normal text-muted">
-                  Admin &amp; privileged team access
+            <>
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="entry-option entry-stagger border border-brand-200 bg-white text-brand-900 hover:border-brand-300 hover:bg-brand-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                style={{ animationDelay: '0.7s' }}
+              >
+                <span className="entry-option__icon bg-brand-100 dark:bg-white/10" aria-hidden>
+                  <FiLock />
                 </span>
-              </span>
-              <FiArrowRight aria-hidden className="entry-option__arrow text-lg" />
-            </button>
+                <span className="flex-1">
+                  <span className="block text-base">User sign in</span>
+                  <span className="block text-xs font-normal text-muted">
+                    Save PGs, reviews &amp; history per account
+                  </span>
+                </span>
+                <FiArrowRight aria-hidden className="entry-option__arrow text-lg" />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/register')}
+                className="entry-option entry-stagger border border-brand-200 bg-white text-brand-900 hover:border-brand-300 hover:bg-brand-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                style={{ animationDelay: '0.85s' }}
+              >
+                <span className="entry-option__icon bg-brand-100 dark:bg-white/10" aria-hidden>
+                  <FiLock />
+                </span>
+                <span className="flex-1">
+                  <span className="block text-base">Create account</span>
+                  <span className="block text-xs font-normal text-muted">Register as a new user</span>
+                </span>
+                <FiArrowRight aria-hidden className="entry-option__arrow text-lg" />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/admin-login')}
+                className="entry-option entry-stagger border border-dashed border-brand-200 bg-white/70 text-brand-900 hover:border-brand-300 hover:bg-brand-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                style={{ animationDelay: '1s' }}
+              >
+                <span className="entry-option__icon bg-brand-100 dark:bg-white/10" aria-hidden>
+                  <FiTool />
+                </span>
+                <span className="flex-1">
+                  <span className="block text-base">Staff / admin login</span>
+                  <span className="block text-xs font-normal text-muted">Admin &amp; privileged team access</span>
+                </span>
+                <FiArrowRight aria-hidden className="entry-option__arrow text-lg" />
+              </button>
+            </>
           )}
         </div>
 

@@ -10,7 +10,7 @@ import { useToast } from '../components/Toast'
 import SkeletonCard from '../components/SkeletonCard'
 import { useListings } from '../contexts/AdminContext'
 import { hasActiveListingFilters } from '../utils/navigation'
-import { filterListingsBySearch } from '../utils/pgSearch'
+import { filterListingsBySearch, searchListings } from '../utils/pgSearch'
 import { getStartingRent, getVacancySummary } from '../utils/vacancy'
 
 export const defaultFilters = {
@@ -25,7 +25,7 @@ export const defaultFilters = {
 }
 
 export default function ListingsPage() {
-  const { listings } = useListings()
+  const { listings, listingsLoading } = useListings()
   const { showToast } = useToast()
   const [searchParams, setSearchParams] = useSearchParams()
   const areaFromUrl = searchParams.get('area') || ''
@@ -37,7 +37,8 @@ export default function ListingsPage() {
     ...defaultFilters,
     area: areaFromUrl,
   })
-  const [loading, setLoading] = useState(true)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [apiResults, setApiResults] = useState(null)
 
   useEffect(() => {
     setFilters((prev) => ({ ...prev, area: areaFromUrl }))
@@ -63,9 +64,31 @@ export default function ListingsPage() {
   }
 
   useEffect(() => {
-    setLoading(true)
-    const timer = setTimeout(() => setLoading(false), 400)
-    return () => clearTimeout(timer)
+    let active = true
+    setSearchLoading(true)
+    const timer = setTimeout(async () => {
+      try {
+        const items = await searchListings(query, {
+          area: filters.area,
+          gender: filters.gender,
+          roomType: filters.roomType,
+          foodOnly: filters.foodOnly,
+          acOnly: filters.acOnly,
+          availableOnly: filters.availableOnly,
+          maxRent: filters.maxRent,
+          getVacancySummary,
+        }, { useApi: true })
+        if (active) setApiResults(items)
+      } catch {
+        if (active) setApiResults(null)
+      } finally {
+        if (active) setSearchLoading(false)
+      }
+    }, 300)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
   }, [query, filters])
 
   const resetAll = () => {
@@ -81,16 +104,18 @@ export default function ListingsPage() {
   }
 
   const results = useMemo(() => {
-    let list = filterListingsBySearch(listings, query, {
-      area: filters.area,
-      gender: filters.gender,
-      roomType: filters.roomType,
-      foodOnly: filters.foodOnly,
-      acOnly: filters.acOnly,
-      availableOnly: filters.availableOnly,
-      maxRent: filters.maxRent,
-      getVacancySummary,
-    })
+    let list =
+      apiResults ??
+      filterListingsBySearch(listings, query, {
+        area: filters.area,
+        gender: filters.gender,
+        roomType: filters.roomType,
+        foodOnly: filters.foodOnly,
+        acOnly: filters.acOnly,
+        availableOnly: filters.availableOnly,
+        maxRent: filters.maxRent,
+        getVacancySummary,
+      })
 
     list.sort((a, b) => {
       switch (filters.sort) {
@@ -106,7 +131,9 @@ export default function ListingsPage() {
     })
 
     return list
-  }, [query, filters, listings])
+  }, [query, filters, listings, apiResults])
+
+  const loading = listingsLoading || searchLoading
 
   const title = filters.area ? `PGs in ${filters.area}` : 'Browse PGs'
   const hasActiveFilters = hasActiveListingFilters(filters, query)

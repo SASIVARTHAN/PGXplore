@@ -107,7 +107,9 @@ export default function AdminPGFormPage() {
     sharing: entriesToSharing(sharingConfigs),
   })
 
-  const handleSubmit = (e) => {
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) {
       showToast('PG name is required.', 'error')
@@ -137,14 +139,21 @@ export default function AdminPGFormPage() {
     setImagesError('')
     setSharingError('')
     const payload = buildPayload()
-    if (isEdit && existing) {
-      updatePG(existing.id, payload)
-      showToast('PG updated.')
-    } else {
-      addPG(payload)
-      showToast('PG added.')
+    setSubmitting(true)
+    try {
+      if (isEdit && existing) {
+        await updatePG(existing.id, payload)
+        showToast('PG updated.')
+      } else {
+        await addPG(payload)
+        showToast('PG added.')
+      }
+      navigate('/admin/pgs')
+    } catch (err) {
+      showToast(err?.message || 'Could not save PG. Sign in as admin or PG owner.', 'error')
+    } finally {
+      setSubmitting(false)
     }
-    navigate('/admin/pgs')
   }
 
   if (isEdit && !existing) {
@@ -305,7 +314,9 @@ export default function AdminPGFormPage() {
       </div>
 
       <div className="mt-6 flex gap-3">
-        <button type="submit" className="btn-primary">{isEdit ? 'Save changes' : 'Create PG'}</button>
+        <button type="submit" className="btn-primary" disabled={submitting}>
+          {submitting ? 'Saving…' : isEdit ? 'Save changes' : 'Create PG'}
+        </button>
         <Link to="/admin/pgs" className="btn-secondary">Cancel</Link>
       </div>
     </form>

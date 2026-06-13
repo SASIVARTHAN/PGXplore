@@ -1,52 +1,94 @@
-import { useCallback, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import BackButton from '../components/BackButton'
 import EmptyState from '../components/EmptyState'
-import PGCard from '../components/PGCard'
 import SavedPGCard from '../components/SavedPGCard'
 import { useToast } from '../components/Toast'
-import { useListings } from '../contexts/AdminContext'
-import { getRecentIds, getSavedIds, removeSaved } from '../utils/storage'
+import { fetchFavoritesApi } from '../api/favorites'
+import { useAuth } from '../contexts/AuthContext'
+import { removeSaved } from '../utils/storage'
 
 export default function SavedPage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const { listings } = useListings()
-  const [savedVersion, setSavedVersion] = useState(0)
+  const { isAccountUser, bootstrapping } = useAuth()
+  const [savedPGs, setSavedPGs] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const recentIds = getRecentIds()
+  useEffect(() => {
+    if (!isAccountUser) {
+      setLoading(false)
+      return
+    }
 
-  const savedPGs = useMemo(() => {
-    return getSavedIds()
-      .map((id) => listings.find((pg) => pg.id === id))
-      .filter(Boolean)
-  }, [savedVersion, listings])
-
-  const recentPGs = useMemo(
-    () => recentIds.map((id) => listings.find((pg) => pg.id === id)).filter(Boolean),
-    [recentIds, listings],
-  )
+    let active = true
+    async function load() {
+      setLoading(true)
+      try {
+        const favorites = await fetchFavoritesApi()
+        if (active) setSavedPGs(favorites)
+      } catch (err) {
+        if (active) showToast(err?.message || 'Could not load saved PGs.', 'error')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [isAccountUser, showToast])
 
   const handleRemove = useCallback(
-    (id) => {
-      removeSaved(id)
-      setSavedVersion((v) => v + 1)
-      showToast('Removed from saved PGs')
+    async (id) => {
+      try {
+        await removeSaved(id)
+        setSavedPGs((prev) => prev.filter((pg) => pg.id !== id))
+        showToast('Removed from saved PGs')
+      } catch {
+        showToast('Could not remove saved PG.', 'error')
+      }
     },
     [showToast],
   )
+
+  if (bootstrapping) {
+    return <div className="mx-auto max-w-6xl px-4 py-12 text-center text-muted">Loading…</div>
+  }
+
+  if (!isAccountUser) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8">
+        <BackButton fallback="/home" />
+        <div className="mt-8">
+          <EmptyState
+            title="Sign in to save PGs"
+            description="Saved PGs are stored per account in the database. Create an account or sign in to save and view listings."
+            actionLabel="Sign in"
+            onAction={() => navigate('/login', { state: { from: '/saved' } })}
+          />
+          <p className="mt-4 text-center text-sm text-muted">
+            New here?{' '}
+            <Link to="/register" state={{ from: '/saved' }} className="font-medium text-brand-emphasis hover:underline">
+              Create an account
+            </Link>
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8">
       <BackButton fallback="/home" />
       <h1 className="mt-4 text-3xl font-bold text-main">Saved PGs</h1>
-      <p className="mt-2 text-muted">Your saved listings are stored locally on this device.</p>
+      <p className="mt-2 text-muted">Saved to your account — synced across devices when you sign in.</p>
 
-      {savedPGs.length === 0 ? (
+      {loading ? (
+        <p className="mt-8 text-muted">Loading saved PGs…</p>
+      ) : savedPGs.length === 0 ? (
         <div className="mt-8">
           <EmptyState
             title="No saved PGs yet"
-            description="Tap the heart on any PG detail page to save it for later."
+            description="Tap the heart on any PG detail page to save it to your account."
             actionLabel="Browse PGs"
             onAction={() => navigate('/listings')}
           />
@@ -57,17 +99,6 @@ export default function SavedPage() {
             <SavedPGCard key={pg.id} pg={pg} onRemove={handleRemove} />
           ))}
         </div>
-      )}
-
-      {recentPGs.length > 0 && (
-        <section className="mt-12">
-          <h2 className="mb-4 text-2xl font-bold text-main">Recently Viewed</h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {recentPGs.map((pg) => (
-              <PGCard key={pg.id} pg={pg} />
-            ))}
-          </div>
-        </section>
       )}
     </div>
   )

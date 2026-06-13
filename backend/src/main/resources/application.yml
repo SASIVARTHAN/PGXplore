@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: pgxplore-backend
+  config:
+    import: optional:file:./google-oauth.local.properties
+  profiles:
+    active: dev
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            scope:
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/pgxplore?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:Psna@psna123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        type:
+          preferred_enum_jdbc_type: VARCHAR
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 50MB
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+
+pgxplore:
+  jwt:
+    secret: ${JWT_SECRET:change-this-to-a-256-bit-secret-key-for-production-use-only}
+    access-token-expiry-minutes: ${JWT_ACCESS_EXPIRY:1440}
+    refresh-token-expiry-days: ${JWT_REFRESH_EXPIRY:7}
+  firebase:
+    credentials-path: ${FIREBASE_CREDENTIALS_PATH:classpath:firebase-service-account.json}
+    bucket-name: ${FIREBASE_BUCKET_NAME:your-project.appspot.com}
+    storage-folder: ${FIREBASE_STORAGE_FOLDER:pg-images}
+    api-key: ${FIREBASE_API_KEY:}
+    auth-domain: ${FIREBASE_AUTH_DOMAIN:}
+    project-id: ${FIREBASE_PROJECT_ID:}
+    app-id: ${FIREBASE_APP_ID:}
+    messaging-sender-id: ${FIREBASE_MESSAGING_SENDER_ID:}
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-3.5-turbo}
+  app:
+    frontend-url: ${FRONTEND_URL:http://localhost:5173}
+    password-reset-expiry-minutes: 60
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+logging:
+  level:
+    root: INFO
+    com.pgxplore: DEBUG
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

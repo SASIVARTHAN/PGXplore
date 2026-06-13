@@ -11,14 +11,18 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   if (session && canAccessAdminPanel) {
     return <Navigate to="/admin" replace />
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const result = login(email, password)
+    setSubmitting(true)
+    setError('')
+    const result = await login(email, password)
+    setSubmitting(false)
     if (!result.ok) {
       setError(result.error)
       return
@@ -67,17 +71,17 @@ export default function AdminLoginPage() {
             />
           </label>
           {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
-          <button type="submit" className="btn-primary w-full">
-            Login
+          <button type="submit" className="btn-primary w-full" disabled={submitting}>
+            {submitting ? 'Signing in…' : 'Login'}
           </button>
         </form>
 
         <div className="mt-6 rounded-xl border border-app bg-card-muted/40 p-4 text-xs text-muted">
-          <p className="font-medium text-main">Demo accounts</p>
+          <p className="font-medium text-main">API accounts (backend)</p>
           <ul className="mt-2 space-y-1">
-            <li>Admin — admin@pgxplore.com / admin123</li>
-            <li>Privileged — arjun@pgxplore.com / priv123</li>
-            <li>Normal — user@pgxplore.com / user123</li>
+            <li>Admin — admin@pgxplore.com / Password@123</li>
+            <li>PG Owner — rajesh@example.com / Password@123</li>
+            <li>User — ananya@example.com / Password@123</li>
           </ul>
         </div>
       </div>

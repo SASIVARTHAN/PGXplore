@@ -1,5 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
+  createPgApi,
+  deletePgApi,
+  fetchAllListings,
+  fetchPgById,
+  updatePgApi,
+} from '../api/listings'
+import {
   ADMIN_STATE_KEY,
   computeDashboardStats,
   loadAdminState,
@@ -8,6 +15,7 @@ import {
   pushNotification,
 } from '../admin/adminStore'
 import { createSeedState, ROOM_TYPES } from '../admin/seedData'
+import { pgListings } from '../data/pgData'
 import { canApproveDeletion, canModifyAccount } from '../utils/auth'
 import { getPGByIdFromListings, getSimilarPGsFromListings } from '../utils/listingsHelpers'
 
@@ -15,6 +23,10 @@ const AdminContext = createContext(null)
 
 export function AdminProvider({ children }) {
   const [state, setState] = useState(() => loadAdminState())
+  const [apiListings, setApiListings] = useState([])
+  const [listingsLoading, setListingsLoading] = useState(true)
+  const [listingsError, setListingsError] = useState(null)
+  const [pgCache, setPgCache] = useState({})
 
   useEffect(() => {
     const onStorage = (event) => {
@@ -29,9 +41,57 @@ export function AdminProvider({ children }) {
     return () => window.removeEventListener('storage', onStorage)
   }, [])
 
-  const listings = useMemo(() => state.pgs, [state.pgs])
+  const refreshListings = useCallback(async () => {
+    setListingsLoading(true)
+    setListingsError(null)
+    try {
+      const items = await fetchAllListings({ size: 200 })
+      setApiListings(items)
+      setState((prev) => {
+        const next = { ...prev, pgs: items }
+        persistAdminState(next)
+        return next
+      })
+    } catch (err) {
+      setListingsError(err?.message || 'Could not load listings from server. Showing offline data.')
+      setApiListings(pgListings)
+      setState((prev) => {
+        const next = { ...prev, pgs: pgListings }
+        persistAdminState(next)
+        return next
+      })
+    } finally {
+      setListingsLoading(false)
+    }
+  }, [])
 
-  const getPGById = useCallback((id) => getPGByIdFromListings(listings, id), [listings])
+  useEffect(() => {
+    refreshListings()
+  }, [refreshListings])
+
+  const listings = useMemo(() => apiListings, [apiListings])
+
+  const getPGById = useCallback(
+    (id) => getPGByIdFromListings(listings, id) || pgCache[Number(id)] || null,
+    [listings, pgCache],
+  )
+
+  const loadPGById = useCallback(
+    async (id) => {
+      const existing = getPGById(id)
+      if (existing) return existing
+      try {
+        const pg = await fetchPgById(id)
+        if (pg) {
+          setPgCache((prev) => ({ ...prev, [Number(id)]: pg }))
+        }
+        return pg
+      } catch {
+        return null
+      }
+    },
+    [getPGById],
+  )
 
   const getSimilarPGs = useCallback(
     (pg, limit = 3) => getSimilarPGsFromListings(listings, pg, limit),
@@ -49,47 +109,50 @@ export function AdminProvider({ children }) {
   const stats = useMemo(() => computeDashboardStats(state), [state])
 
   const addPG = useCallback(
-    (pg) => {
+    async (pg) => {
+      const created = await createPgApi(pg)
+      await refreshListings()
       save((prev) => {
         const next = { ...prev }
-        const id = Math.max(0, ...next.pgs.map((p) => p.id)) + 1
-        const entry = { ...pg, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-        next.pgs = [...next.pgs, entry]
-        logActivity(next, 'PG added', entry.name)
-        pushNotification(next, { type: 'vacancy', title: 'New PG listed', message: entry.name })
+        logActivity(next, 'PG added', created.name)
+        pushNotification(next, { type: 'vacancy', title: 'New PG listed', message: created.name })
         return next
       })
+      return created
     },
-    [save],
+    [save, refreshListings],
   )
 
   const updatePG = useCallback(
-    (id, updates) => {
+    async (id, updates) => {
+      const existing = getPGById(id)
+      const merged = { ...existing, ...updates }
+      const updated = await updatePgApi(id, merged)
+      await refreshListings()
       save((prev) => {
         const next = { ...prev }
-        next.pgs = next.pgs.map((p) =>
-          p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p,
-        )
         logActivity(next, 'PG updated', updates.name || `PG #${id}`)
         return next
       })
+      return updated
     },
-    [save],
+    [save, refreshListings, getPGById],
   )
 
   /** Permanently remove a PG (used only after a deletion request is approved). */
   const removePGPermanently = useCallback(
-    (id) => {
+    async (id) => {
+      await deletePgApi(id)
+      await refreshListings()
       save((prev) => {
         const next = { ...prev }
         const pg = next.pgs.find((p) => p.id === id)
-        next.pgs = next.pgs.filter((p) => p.id !== id)
         next.rooms = next.rooms.filter((r) => r.pgId !== id)
         logActivity(next, 'PG deleted', pg?.name || `PG #${id}`)
         return next
       })
     },
-    [save],
+    [save, refreshListings],
   )
 
   const getPendingDeletionRequest = useCallback(
@@ -170,9 +233,9 @@ export function AdminProvider({ children }) {
         )
         if (approve) {
           const pg = next.pgs.find((p) => p.id === request.pgId)
-          next.pgs = next.pgs.filter((p) => p.id !== request.pgId)
           next.rooms = next.rooms.filter((r) => r.pgId !== request.pgId)
           logActivity(next, 'Deletion approved', pg?.name || request.pgName)
+          deletePgApi(request.pgId).then(() => refreshListings()).catch(() => {})
         } else {
           logActivity(next, 'Deletion rejected', request.pgName)
         }
@@ -181,7 +244,7 @@ export function AdminProvider({ children }) {
       })
       return result
     },
-    [save],
+    [save, refreshListings],
   )
 
   const addRoom = useCallback(
@@ -299,7 +362,11 @@ export function AdminProvider({ children }) {
   const value = {
     state,
     listings,
+    listingsLoading,
+    listingsError,
+    refreshListings,
     getPGById,
+    loadPGById,
     getSimilarPGs,
     stats,
     save,
@@ -330,8 +397,9 @@ export function useAdmin() {
   return ctx
 }
 
-/** Public site + admin — live PG listings from the same store */
+/** Public site + admin — live PG listings from the API */
 export function useListings() {
-  const { listings, getPGById, getSimilarPGs } = useAdmin()
-  return { listings, getPGById, getSimilarPGs }
+  const { listings, listingsLoading, listingsError, refreshListings, getPGById, loadPGById, getSimilarPGs } =
+    useAdmin()
+  return { listings, listingsLoading, listingsError, refreshListings, getPGById, loadPGById, getSimilarPGs }
 }

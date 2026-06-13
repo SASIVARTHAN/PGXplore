@@ -1,9 +1,15 @@
 import { Link, useLocation } from 'react-router-dom'
 import { FiHome, FiSearch, FiHeart, FiUser } from 'react-icons/fi'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function MobileNav() {
   const location = useLocation()
-  const hideNav = location.pathname === '/' || location.pathname === '/admin-login'
+  const { isAccountUser } = useAuth()
+  const hideNav =
+    location.pathname === '/' ||
+    location.pathname === '/admin-login' ||
+    location.pathname === '/login' ||
+    location.pathname === '/register'
 
   if (hideNav) return null
 
@@ -11,7 +17,12 @@ export default function MobileNav() {
     { to: '/home', label: 'Dashboard', icon: <FiHome aria-hidden />, match: (p) => p === '/home' },
     { to: '/listings', label: 'Browse', icon: <FiSearch aria-hidden />, match: (p) => p.startsWith('/listings') },
     { to: '/saved', label: 'Saved', icon: <FiHeart aria-hidden />, match: (p) => p.startsWith('/saved') },
-    { to: '/', label: 'Login', icon: <FiUser aria-hidden />, match: (p) => p === '/' },
+    {
+      to: isAccountUser ? '/account' : '/login',
+      label: isAccountUser ? 'Account' : 'Sign in',
+      icon: <FiUser aria-hidden />,
+      match: (p) => p === '/account' || p === '/login',
+    },
   ]
 
   return (

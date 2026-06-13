@@ -1,3 +1,4 @@
+import { searchListingsApi } from '../api/listings'
 import { AREAS, pgListings } from '../data/pgData'
 import { isFoodServiceAvailable } from './foodAvailability'
 import { sharingToEntries } from './sharingTypes'
@@ -317,16 +318,35 @@ export function getSearchSuggestions(rawQuery, listings = pgListings, limit = 8)
 }
 
 /**
- * Future API entry point — same signature, remote implementation.
+ * Search listings via API when useApi is true, otherwise filter a local list.
  */
 export async function searchListings(rawQuery, uiFilters = {}, options = {}) {
-  if (options.useApi && options.apiUrl) {
-    const params = new URLSearchParams({ q: rawQuery, ...uiFilters })
-    const res = await fetch(`${options.apiUrl}?${params}`, { signal: options.signal })
-    if (!res.ok) throw new Error('Search failed')
-    return res.json()
+  if (options.useApi) {
+    const parsed = parseSearchQuery(rawQuery)
+    const { items } = await searchListingsApi({
+      keyword: parsed.raw || undefined,
+      area: uiFilters.area || parsed.area || undefined,
+      gender: uiFilters.gender || parsed.gender || undefined,
+      minRent: parsed.minRent ?? undefined,
+      maxRent: uiFilters.maxRent ?? parsed.maxRent ?? undefined,
+      foodOnly: uiFilters.foodOnly || parsed.requireFood || undefined,
+      acOnly: uiFilters.acOnly || parsed.requireAc || undefined,
+      availableOnly: uiFilters.availableOnly,
+      city: uiFilters.city || 'Chennai',
+    })
+    let list = [...items]
+    if (uiFilters.roomType) {
+      list = list.filter((pg) =>
+        sharingToEntries(pg.sharing).some((entry) => entry.type === uiFilters.roomType),
+      )
+    }
+    if (uiFilters.getVacancySummary && uiFilters.availableOnly) {
+      list = list.filter((pg) => uiFilters.getVacancySummary(pg.sharing).length > 0)
+    }
+    return list
   }
-  return filterListingsBySearch(pgListings, rawQuery, uiFilters)
+  const source = options.listings || pgListings
+  return filterListingsBySearch(source, rawQuery, uiFilters)
 }
 
 export function hasMeaningfulSearch(rawQuery) {

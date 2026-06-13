@@ -1,5 +1,5 @@
-import { Link, useLocation } from 'react-router-dom'
-import { FiTool } from 'react-icons/fi'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { FiLogOut, FiTool, FiUser } from 'react-icons/fi'
 import { useAuth } from '../contexts/AuthContext'
 import BrandLogo from './BrandLogo'
 import ThemeToggle from './ThemeToggle'
@@ -12,14 +12,20 @@ const links = [
 
 export default function Header() {
   const location = useLocation()
-  const { session, canAccessAdminPanel } = useAuth()
-  const hideNav = location.pathname === '/'
+  const navigate = useNavigate()
+  const { session, isAccountUser, canAccessAdminPanel, logout } = useAuth()
+  const hideNav = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register'
 
   if (hideNav) return null
 
   const isActive = (path) => {
     if (path === '/home') return location.pathname === '/home'
     return location.pathname.startsWith(path)
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
   }
 
   return (
@@ -41,18 +47,46 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            {session && canAccessAdminPanel ? (
-              <Link to="/admin" className="header-admin-link">
-                <FiTool aria-hidden />
-                Admin Panel
-              </Link>
+            {isAccountUser ? (
+              <>
+                <Link
+                  to="/account"
+                  className={`inline-flex items-center gap-1.5 text-sm font-medium transition ${
+                    location.pathname === '/account'
+                      ? 'text-brand-emphasis'
+                      : 'text-neutral-800 hover:text-brand-900 dark:text-stone-300 dark:hover:text-brand-400'
+                  }`}
+                >
+                  <FiUser aria-hidden />
+                  {session.name.split(' ')[0]}
+                </Link>
+                {canAccessAdminPanel && (
+                  <Link to="/admin" className="header-admin-link">
+                    <FiTool aria-hidden />
+                    Admin Panel
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-800 transition hover:text-brand-900 dark:text-stone-300 dark:hover:text-brand-400"
+                >
+                  <FiLogOut aria-hidden />
+                  Sign out
+                </button>
+              </>
             ) : (
-              <Link
-                to="/"
-                className="text-sm font-medium text-neutral-800 transition hover:text-brand-900 dark:text-stone-300 dark:hover:text-brand-400"
-              >
-                Login
-              </Link>
+              <>
+                <Link
+                  to="/login"
+                  className="text-sm font-medium text-neutral-800 transition hover:text-brand-900 dark:text-stone-300 dark:hover:text-brand-400"
+                >
+                  Sign in
+                </Link>
+                <Link to="/register" className="btn-primary px-3 py-1.5 text-sm">
+                  Register
+                </Link>
+              </>
             )}
           </nav>
           <ThemeToggle />

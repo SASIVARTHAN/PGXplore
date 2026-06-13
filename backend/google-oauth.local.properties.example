@@ -1,0 +1,7 @@
+# Copy this file to google-oauth.local.properties and fill in your values.
+# Get credentials from: https://console.cloud.google.com/apis/credentials
+# Application type: Web application
+# Authorized JavaScript origins: http://localhost:5173
+
+GOOGLE_CLIENT_ID=YOUR_CLIENT_ID.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=YOUR_CLIENT_SECRET

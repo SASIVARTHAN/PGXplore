@@ -14,15 +14,16 @@ import ReportModal from '../components/ReportModal'
 import ReviewList from '../components/ReviewList'
 import { useToast } from '../components/Toast'
 import VacancyDisplay from '../components/VacancyDisplay'
+import { useAuth } from '../contexts/AuthContext'
 import { useListings } from '../contexts/AdminContext'
 import ThankYouModal from '../components/ThankYouModal'
 import {
-  addUserReview,
-  deleteUserReview,
-  getUserReviews,
-  updateUserReview,
+  loadReviewsForPg,
+  removeUserReview,
+  saveUserReview,
+  submitUserReview,
 } from '../utils/reviews'
-import { isSaved, toggleSaved, trackRecent } from '../utils/storage'
+import { isSaved, LoginRequiredError, syncSavedFromApi, toggleSaved, trackRecent } from '../utils/storage'
 import { formatNoticePeriod } from '../utils/formatPolicy'
 import { formatUpdatedAt, getStartingRent } from '../utils/vacancy'
 
@@ -33,30 +34,62 @@ export default function PGDetailPage() {
   const browseReturnTo = location.state?.from ?? '/listings'
   const detailReturnTo = `/pg/${id}`
   const { showToast } = useToast()
-  const { getPGById, getSimilarPGs } = useListings()
-  const pg = useMemo(() => getPGById(id), [id, getPGById])
+  const { session, isAccountUser } = useAuth()
+  const { getPGById, loadPGById, getSimilarPGs } = useListings()
+  const [pg, setPg] = useState(() => getPGById(id))
   const [saved, setSaved] = useState(false)
   const [showReport, setShowReport] = useState(false)
   const [userReviews, setUserReviews] = useState([])
+  const [builtInReviews, setBuiltInReviews] = useState([])
   const [showThankYou, setShowThankYou] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let active = true
     const listingId = Number(id)
-    if (!listingId || !getPGById(id)) return
-    trackRecent(listingId)
-    setSaved(isSaved(listingId))
-    setUserReviews(getUserReviews(listingId))
-  }, [id, getPGById])
+    if (!listingId) return () => { active = false }
+
+    async function load() {
+      setLoading(true)
+      const found = getPGById(id) || (await loadPGById(id))
+      if (!active) return
+      setPg(found || null)
+      if (!found) {
+        setLoading(false)
+        return
+      }
+      await trackRecent(listingId)
+      if (isAccountUser) await syncSavedFromApi(session?.id)
+      if (!active) return
+      setSaved(isAccountUser ? isSaved(listingId, session?.id) : false)
+      const { userReviews: own, builtInReviews: builtIn } = await loadReviewsForPg(listingId)
+      if (!active) return
+      setUserReviews(own)
+      setBuiltInReviews(builtIn)
+      setLoading(false)
+    }
+
+    load()
+    return () => { active = false }
+  }, [id, getPGById, loadPGById, isAccountUser, session?.id])
 
   const averageRating = useMemo(() => {
     if (!pg) return null
-    const all = [...userReviews, ...pg.reviews]
+    const all = [...userReviews, ...builtInReviews]
     if (all.length === 0) return pg.rating
     const sum = all.reduce((acc, r) => acc + r.rating, 0)
     return sum / all.length
-  }, [pg, userReviews])
+  }, [pg, userReviews, builtInReviews])
 
   const similar = useMemo(() => (pg ? getSimilarPGs(pg) : []), [pg, getSimilarPGs])
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-12 text-center text-muted">
+        Loading PG details…
+      </div>
+    )
+  }
 
   if (!pg) {
     return (
@@ -71,10 +104,23 @@ export default function PGDetailPage() {
     )
   }
 
-  const handleSave = () => {
-    const nowSaved = toggleSaved(pg.id)
-    setSaved(nowSaved)
-    showToast(nowSaved ? 'PG saved to your list' : 'Removed from saved PGs')
+  const handleSave = async () => {
+    if (!isAccountUser) {
+      showToast('Sign in to save PGs to your account.', 'error')
+      navigate('/login', { state: { from: `/pg/${pg.id}` } })
+      return
+    }
+    try {
+      const nowSaved = await toggleSaved(pg.id)
+      setSaved(nowSaved)
+      showToast(nowSaved ? 'PG saved to your account' : 'Removed from saved PGs')
+    } catch (err) {
+      if (err instanceof LoginRequiredError || err?.needsLogin) {
+        navigate('/login', { state: { from: `/pg/${pg.id}` } })
+        return
+      }
+      showToast(err?.message || 'Could not update saved list.', 'error')
+    }
   }
 
   const handleShare = async () => {
@@ -110,26 +156,43 @@ export default function PGDetailPage() {
     showToast('Report submitted. Thank you!')
   }
 
-  const handleReviewSubmit = (review) => {
-    addUserReview(pg.id, review)
-    setUserReviews(getUserReviews(pg.id))
-    setShowThankYou(true)
-  }
-
-  const handleReviewUpdate = (reviewId, data) => {
-    const updated = updateUserReview(pg.id, reviewId, data)
-    if (!updated) {
-      showToast('Reviews can only be edited within 1 hour of posting.', 'error')
+  const handleReviewSubmit = async (review) => {
+    if (!isAccountUser) {
+      showToast('Sign in to post a review.', 'error')
+      navigate('/login', { state: { from: `/pg/${pg.id}` } })
       return
     }
-    setUserReviews(getUserReviews(pg.id))
-    showToast('Review updated.')
+    try {
+      const created = await submitUserReview(pg.id, review)
+      setUserReviews((prev) => [created, ...prev])
+      setShowThankYou(true)
+    } catch (err) {
+      showToast(err?.message || 'Could not submit review.', 'error')
+    }
   }
 
-  const handleReviewDelete = (reviewId) => {
-    deleteUserReview(pg.id, reviewId)
-    setUserReviews(getUserReviews(pg.id))
-    showToast('Review deleted.')
+  const handleReviewUpdate = async (reviewId, data) => {
+    try {
+      const updated = await saveUserReview(pg.id, reviewId, data)
+      if (!updated) {
+        showToast('Reviews can only be edited within 1 hour of posting.', 'error')
+        return
+      }
+      setUserReviews((prev) => prev.map((r) => (r.id === reviewId ? { ...r, ...updated } : r)))
+      showToast('Review updated.')
+    } catch (err) {
+      showToast(err?.message || 'Could not update review.', 'error')
+    }
+  }
+
+  const handleReviewDelete = async (reviewId) => {
+    try {
+      await removeUserReview(pg.id, reviewId)
+      setUserReviews((prev) => prev.filter((r) => r.id !== reviewId))
+      showToast('Review deleted.')
+    } catch (err) {
+      showToast(err?.message || 'Could not delete review.', 'error')
+    }
   }
 
   return (
@@ -239,7 +302,7 @@ export default function PGDetailPage() {
         )}
 
         <ReviewList
-          reviews={pg.reviews}
+          reviews={builtInReviews}
           userReviews={userReviews}
           onSubmitReview={handleReviewSubmit}
           onUpdateReview={handleReviewUpdate}
