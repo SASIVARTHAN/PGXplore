@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +33,10 @@ public class FirebaseRestTokenVerifier {
     private final RestClient restClient = RestClient.create();
 
     public FirebaseUserInfo verify(String idToken) {
+        return verify(idToken, null);
+    }
+
+    public FirebaseUserInfo verify(String idToken, String clientEmail) {
         String apiKey = firebaseWebProperties.getApiKey();
         if (!StringUtils.hasText(apiKey)) {
             throw new ValidationException(
@@ -74,6 +79,15 @@ public class FirebaseRestTokenVerifier {
             }
 
             if (!StringUtils.hasText(email)) {
+                email = resolveEmailFromProviders(user);
+            }
+
+            if (!StringUtils.hasText(email) && StringUtils.hasText(clientEmail)) {
+                email = verifyClientEmail(apiKey, clientEmail, uid);
+            }
+
+            if (!StringUtils.hasText(email)) {
+                log.warn("Firebase lookup missing email for uid={}", uid);
                 throw new ValidationException(
                         "Firebase account did not include an email or phone number.");
             }
@@ -105,5 +119,56 @@ public class FirebaseRestTokenVerifier {
         }
         String text = value.asText();
         return StringUtils.hasText(text) ? text : null;
+    }
+
+    /** Read email from linked provider profiles when the top-level user node has none. */
+    private String resolveEmailFromProviders(JsonNode user) {
+        JsonNode providers = user.path("providerUserInfo");
+        if (!providers.isArray()) {
+            return null;
+        }
+        for (JsonNode provider : providers) {
+            String providerEmail = textOrNull(provider, "email");
+            if (StringUtils.hasText(providerEmail)) {
+                return providerEmail;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Google ID tokens sometimes omit the email claim. The client supplies email from
+     * {@code user.email}; we confirm it belongs to the same Firebase UID via lookup.
+     */
+    private String verifyClientEmail(String apiKey, String clientEmail, String expectedUid) {
+        String normalizedEmail = clientEmail.trim().toLowerCase();
+        try {
+            String body = restClient.post()
+                    .uri(String.format(LOOKUP_URL, apiKey))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of("email", List.of(normalizedEmail)))
+                    .retrieve()
+                    .body(String.class);
+
+            JsonNode root = objectMapper.readTree(body);
+            JsonNode users = root.path("users");
+            if (!users.isArray() || users.isEmpty()) {
+                throw new ValidationException("Email does not match the signed-in Firebase account.");
+            }
+
+            JsonNode user = users.get(0);
+            String lookedUpUid = textOrNull(user, "localId");
+            if (!StringUtils.hasText(lookedUpUid) || !lookedUpUid.equals(expectedUid)) {
+                throw new ValidationException("Email does not match the signed-in Firebase account.");
+            }
+
+            String resolvedEmail = textOrNull(user, "email");
+            return StringUtils.hasText(resolvedEmail) ? resolvedEmail.toLowerCase() : normalizedEmail;
+        } catch (ValidationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.warn("Firebase email lookup failed for uid {}: {}", expectedUid, ex.getMessage());
+            throw new ValidationException("Could not verify email for this Firebase account.");
+        }
     }
 }

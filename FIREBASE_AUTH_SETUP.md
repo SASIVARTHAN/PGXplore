@@ -111,7 +111,8 @@ Both flows call `POST /api/auth/firebase` with the Firebase ID token and receive
 |-------|-----|
 | “Google sign-in is unavailable” | Start backend; check Firebase config in `.env` or `/api/auth/firebase/config` |
 | “Firebase is not configured on the server” | Add `firebase-service-account.json` to backend resources |
-| Phone OTP not sent | Enable Phone provider in Firebase; check authorized domains; use test phone numbers |
+| Phone OTP not sent | Enable Phone provider in Firebase; **upgrade to Blaze plan** (billing required for SMS); use test phone numbers |
+| `auth/billing-not-enabled` | Upgrade Firebase project to **Blaze (pay-as-you-go)** in Firebase Console → Upgrade. Phone auth does not work on the free Spark plan. |
 | `auth/too-many-requests` | Wait a few minutes or use Firebase test phone numbers |
 | App Check errors in dev | Add/regenerate debug token in Firebase Console and `.env` |
 | Invalid Firebase token | Token expired — sign in again; ensure frontend and backend use the same Firebase project |

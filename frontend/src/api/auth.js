@@ -37,10 +37,18 @@ export async function fetchFirebaseConfigApi() {
   return apiRequest('/api/auth/firebase/config', { auth: false })
 }
 
-export async function loginWithFirebaseApi(idToken) {
+export async function loginWithFirebaseApi(credentials) {
+  const payload =
+    typeof credentials === 'string'
+      ? { idToken: credentials }
+      : {
+          idToken: credentials.idToken,
+          email: credentials.email,
+        }
+
   const data = await apiRequest('/api/auth/firebase', {
     method: 'POST',
-    body: { idToken },
+    body: payload,
     auth: false,
   })
 

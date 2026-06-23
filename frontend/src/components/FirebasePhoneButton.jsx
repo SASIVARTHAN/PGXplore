@@ -40,6 +40,10 @@ export default function FirebasePhoneButton({ onToken, onError, disabled = false
         onError?.('SMS quota exceeded. Enable billing in Firebase or add a test phone number in Firebase Console.')
       } else if (err?.code === 'auth/operation-not-allowed') {
         onError?.('Phone sign-in is not enabled. Enable Phone in Firebase Console → Authentication → Sign-in method.')
+      } else if (err?.code === 'auth/billing-not-enabled') {
+        onError?.(
+          'Phone sign-in requires Firebase billing (Blaze plan). Upgrade in Firebase Console → Upgrade, or use Sign in with Google instead.'
+        )
       } else {
         onError?.(err?.message || 'Could not send verification code.')
       }

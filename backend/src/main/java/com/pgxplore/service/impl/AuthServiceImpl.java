@@ -136,7 +136,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public GoogleLoginResponse firebaseLogin(FirebaseLoginRequest request) {
-        FirebaseUserInfo userInfo = firebaseTokenVerifier.verify(request.getIdToken());
+        FirebaseUserInfo userInfo = firebaseTokenVerifier.verify(request.getIdToken(), request.getEmail());
         User user = userService.findOrCreateFirebaseUser(userInfo);
         return googleOAuthService.authenticateUser(user);
     }

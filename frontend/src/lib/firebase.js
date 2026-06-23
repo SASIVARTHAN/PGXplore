@@ -91,7 +91,16 @@ export function getFirebaseApp() {
   return firebaseApp
 }
 
-/** Opens the Google sign-in popup and returns the Firebase ID token. */
+/** Resolve email from Firebase user profile or linked Google provider data. */
+function resolveGoogleEmail(user) {
+  if (user?.email?.trim()) {
+    return user.email.trim()
+  }
+  const googleProfile = user?.providerData?.find((profile) => profile.providerId === 'google.com')
+  return googleProfile?.email?.trim() || ''
+}
+
+/** Opens the Google sign-in popup and returns credentials for the backend. */
 export async function signInWithGooglePopup() {
   const auth = getFirebaseAuth()
   if (!auth) {
@@ -102,7 +111,25 @@ export async function signInWithGooglePopup() {
   provider.addScope('profile')
   provider.setCustomParameters({ prompt: 'select_account' })
   const result = await signInWithPopup(auth, provider)
-  return result.user.getIdToken()
+  const user = result.user
+
+  // Reload profile so Google email/name are available before token exchange.
+  await user.reload()
+
+  const email = resolveGoogleEmail(user)
+  if (!email) {
+    throw new Error(
+      'Your Google account must include a valid email address. Use a Gmail account or grant email access when signing in.'
+    )
+  }
+
+  // Google tokens often omit the email claim; send client profile email to the backend.
+  return {
+    idToken: await user.getIdToken(true),
+    email,
+    name: user.displayName?.trim() || '',
+    profilePicture: user.photoURL?.trim() || '',
+  }
 }
 
 /** Normalize a 10-digit Indian mobile number to E.164 (+91). */

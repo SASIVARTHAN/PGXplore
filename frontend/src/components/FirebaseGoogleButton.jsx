@@ -22,8 +22,8 @@ export default function FirebaseGoogleButton({ onToken, onError, disabled = fals
   const handleClick = async () => {
     setBusy(true)
     try {
-      const idToken = await signInWithGooglePopup()
-      await onToken?.(idToken)
+      const credentials = await signInWithGooglePopup()
+      await onToken?.(credentials)
     } catch (err) {
       if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
         onError?.('Google sign-in was cancelled.')
@@ -31,6 +31,10 @@ export default function FirebaseGoogleButton({ onToken, onError, disabled = fals
         onError?.('Google sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in method.')
       } else if (err?.code === 'auth/unauthorized-domain') {
         onError?.('This domain is not authorized. Add localhost to Firebase → Authentication → Authorized domains.')
+      } else if (err?.message?.includes('valid email')) {
+        onError?.(err.message)
+      } else if (err?.message?.includes('email or phone')) {
+        onError?.('Google sign-in did not return an email. Try another Google account or grant email permission.')
       } else {
         onError?.(err?.message || 'Google sign-in failed.')
       }

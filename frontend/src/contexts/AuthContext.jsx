@@ -107,9 +107,9 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const loginWithFirebase = useCallback(async (idToken) => {
+  const loginWithFirebase = useCallback(async (credentials) => {
     try {
-      let next = await loginWithFirebaseApi(idToken)
+      let next = await loginWithFirebaseApi(credentials)
       next = await syncUserDataAfterLogin(next)
       setSession(next)
       return { ok: true, session: next }
