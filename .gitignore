@@ -17,6 +17,8 @@ npm-debug.log*
 # Environment
 .env
 .env.*
+!.env.example
+!**/.env.example
 
 # Secrets / service-account keys (NEVER commit)
 *firebase-adminsdk*.json

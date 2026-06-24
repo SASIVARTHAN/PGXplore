@@ -11,5 +11,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "pgxplore.app")
 public class AppProperties {
     private String frontendUrl = "http://localhost:5173";
+    /** Comma-separated extra origins, e.g. https://app.example.com,https://www.example.com */
+    private String corsAllowedOrigins = "";
     private int passwordResetExpiryMinutes = 60;
 }

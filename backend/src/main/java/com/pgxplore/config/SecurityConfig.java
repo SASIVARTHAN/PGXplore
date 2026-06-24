@@ -23,8 +23,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Configuration
 @EnableWebSecurity
@@ -35,6 +40,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final RequestResponseLoggingFilter loggingFilter;
     private final CustomUserDetailsService userDetailsService;
+    private final AppProperties appProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -78,12 +84,30 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000"));
+        config.setAllowedOrigins(resolveAllowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    /** Local dev origins plus FRONTEND_URL / CORS_ALLOWED_ORIGINS for deployed testing. */
+    private List<String> resolveAllowedOrigins() {
+        Set<String> origins = new LinkedHashSet<>(List.of(
+                "http://localhost:5173",
+                "http://localhost:3000"
+        ));
+        if (StringUtils.hasText(appProperties.getFrontendUrl())) {
+            origins.add(appProperties.getFrontendUrl().trim());
+        }
+        if (StringUtils.hasText(appProperties.getCorsAllowedOrigins())) {
+            Arrays.stream(appProperties.getCorsAllowedOrigins().split(","))
+                    .map(String::trim)
+                    .filter(StringUtils::hasText)
+                    .forEach(origins::add);
+        }
+        return new ArrayList<>(origins);
     }
 }
