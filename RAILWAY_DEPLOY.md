@@ -23,7 +23,8 @@ In the backend service → **Variables**, add:
 | `DB_USERNAME` | from MySQL service |
 | `DB_PASSWORD` | from MySQL service |
 | `JWT_SECRET` | long random string (32+ chars) |
-| `SERVER_PORT` | `${{PORT}}` or `8080` |
+| `SERVER_PORT` | `${{PORT}}` (**required**) |
+| `SPRING_PROFILES_ACTIVE` | `prod` (**required**) |
 | `FRONTEND_URL` | `http://localhost:5173` |
 | `FIREBASE_API_KEY` | Firebase web app config |
 | `FIREBASE_AUTH_DOMAIN` | `pgxplore.firebaseapp.com` |
@@ -76,7 +77,16 @@ Open http://localhost:5173 — it calls your deployed backend.
 
 | Error | Fix |
 |-------|-----|
+| Healthcheck failed / service unavailable | Set `SERVER_PORT=${{PORT}}` and `SPRING_PROFILES_ACTIVE=prod`; verify MySQL vars |
 | Railpack can't detect Java | Redeploy after pulling latest `railway.toml` |
-| DB connection failed | Check `DB_URL`, username, password |
+| DB connection failed | Check `DB_URL`, username, password — use Railway MySQL service variables |
 | CORS error | Set `FRONTEND_URL=http://localhost:5173` |
 | Google login fails | Add Firebase env vars + service account JSON |
+
+### Reading deploy logs
+
+In Railway → backend service → **Deployments → View logs**. If you see:
+
+- `Communications link failure` or `Access denied for user` → database variables are wrong
+- `Port already in use` → set `SERVER_PORT=${{PORT}}`
+- App starts then stops → open **Deploy logs** (runtime), not just build logs

@@ -4,7 +4,7 @@ spring:
   config:
     import: optional:file:./google-oauth.local.properties
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   security:
     oauth2:
       client:
@@ -59,7 +59,7 @@ spring:
       max-request-size: 50MB
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:${PORT:8080}}
   error:
     include-message: always
 

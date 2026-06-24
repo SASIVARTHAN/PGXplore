@@ -4,6 +4,7 @@
 buildCommand = "cd backend && chmod +x mvnw && ./mvnw clean package -DskipTests"
 
 [deploy]
-startCommand = "java -jar backend/target/pgxplore-backend-1.0.0.jar"
+startCommand = "java -jar backend/target/pgxplore-backend-1.0.0.jar --server.port=$PORT"
 healthcheckPath = "/api/auth/firebase/config"
+healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
