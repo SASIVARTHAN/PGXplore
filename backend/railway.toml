@@ -1,7 +1,3 @@
 # Place this service's Root Directory to "backend" in Railway → Settings.
-[build]
-buildCommand = "./mvnw clean package -DskipTests"
-
 [deploy]
-startCommand = "java -jar target/pgxplore-backend-1.0.0.jar"
 healthcheckPath = "/api/auth/firebase/config"
