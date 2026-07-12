@@ -1,0 +1,47 @@
+# Nested duplicate project copy (not part of the app)
+/PGXplore-main/
+
+# Dependencies & build
+node_modules/
+dist/
+dist-ssr/
+backend/target/
+*.local
+hs_err_pid*.log
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Secrets / service-account keys (NEVER commit)
+*firebase-adminsdk*.json
+firebase-service-account.json
+google-oauth.local.properties
+
+# Editor / tooling
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.cursor/
+.DS_Store
+
+# Local extraction artifacts (not part of the app)
+share_page.html
+all_strings.txt
+chat_output.txt
+extract_chat.py
+share_api.json
+
+# Local secrets / deploy keys
+pgxplore.pem
+*.pem
+logs.*.json
+backend/.env
+frontend/.env.local

@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:tc:mysql:8.0:///pgxplore
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  flyway:
+    enabled: true
+
+pgxplore:
+  jwt:
+    secret: test-jwt-secret-key-minimum-32-characters-long
+    access-token-expiry-minutes: 1440
+  firebase:
+    bucket-name: test-bucket
+  openai:
+    api-key: test-key

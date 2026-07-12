@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/pgxplore?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: "Psna@psna123"
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    com.pgxplore: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+pgxplore:
+  jwt:
+    secret: dev-only-jwt-secret-key-minimum-32-characters-long
+  firebase:
+    bucket-name: pgxplore.firebasestorage.app
+  openai:
+    api-key: ${OPENAI_API_KEY:sk-dev-placeholder}
+  cognito:
+    region: ${COGNITO_REGION:ap-southeast-2}
+    user-pool-id: ${COGNITO_USER_POOL_ID:ap-southeast-2_YPMktk5Ex}
+    client-id: ${COGNITO_CLIENT_ID:2vqtsu3lavdg8g5bp5ugt7c9gm}

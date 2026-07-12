@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    show-sql: false
+
+management:
+  endpoint:
+    health:
+      show-details: when_authorized
+  health:
+    mail:
+      enabled: false
+
+logging:
+  level:
+    com.pgxplore: INFO
+    org.springframework.security: INFO
