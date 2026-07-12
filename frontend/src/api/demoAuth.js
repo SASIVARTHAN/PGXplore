@@ -29,6 +29,14 @@ const BUILTIN_DEMO_USERS = {
     role: ROLES.PG_OWNER,
     ownerApprovalStatus: 'APPROVED',
   },
+  6305435539: {
+    id: 'demo-user-6305435539',
+    name: 'Salman User',
+    email: '6305435539@phone.pgxplore.local',
+    backendRole: 'USER',
+    role: ROLES.NORMAL,
+    ownerApprovalStatus: null,
+  },
 }
 
 export function isDemoAuthEnabled() {
@@ -186,4 +194,5 @@ export const DEMO_AUTH_HINT = `Demo OTP: ${DEMO_OTP}`
 export const DEMO_TEST_PHONES = [
   { phone: '9876543213', label: 'User' },
   { phone: '9876543211', label: 'PG Owner' },
+  { phone: '6305435539', label: 'User (+91)' },
 ]
